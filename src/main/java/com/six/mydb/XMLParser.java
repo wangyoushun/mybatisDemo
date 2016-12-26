@@ -36,7 +36,7 @@ public class XMLParser {
 	public Config parserXml(String resources) throws Exception {
 		factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = factory.newDocumentBuilder();
-		db.setEntityResolver(new XMLConfigEntityResolverTest());
+		db.setEntityResolver(new XMLConfigEntityResolver());
 
 		// 解析dbconfig
 		InputStream resourceAsStream = Resources.getResourceAsStream(resources);
@@ -88,7 +88,7 @@ public class XMLParser {
 		logger.debug("=========parserMapper============start");
 
 		DocumentBuilder db = factory.newDocumentBuilder();
-		db.setEntityResolver(new XMLConfigEntityResolverTest());
+		db.setEntityResolver(new XMLConfigEntityResolver());
 		InputStream resourceAsStream = getClass().getClassLoader()
 				.getResourceAsStream(path);
 		Document document = db.parse(resourceAsStream);
