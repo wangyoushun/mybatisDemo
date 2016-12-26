@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration SYSTEM "mydb-mapper.dtd">
+<mapper namespace="com.six.domain.User">
+	
+	<select id="11">
+		select * from user
+		<if test="">
+		222</if>
+		<where>
+		
+		222333</where>
+	</select>
+	
+	<select id="selectAllUser"  resultType="com.six.domain.User">
+		select * from user  t
+		where t.id=${id}
+	</select>
+</mapper>

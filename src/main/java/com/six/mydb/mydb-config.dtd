@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--mydb 1.0 -->
+<!ELEMENT configuration (properties?, settings?, environments?, mappers?)>
+
+<!ELEMENT properties (property*)>
+<!ATTLIST properties
+resource CDATA #IMPLIED
+url CDATA #IMPLIED
+>
+
+<!ELEMENT property EMPTY>
+<!ATTLIST property
+name CDATA #REQUIRED
+value CDATA #REQUIRED
+>
+
+<!ELEMENT settings (setting+)>
+
+<!ELEMENT setting EMPTY>
+<!ATTLIST setting
+name CDATA #REQUIRED
+value CDATA #REQUIRED
+>
+
+
+<!ELEMENT environments (environment+)>
+
+<!ELEMENT environment (transactionManager,dataSource)>
+<!ATTLIST environment
+id CDATA #REQUIRED
+>
+
+<!ELEMENT transactionManager (property*)>
+<!ATTLIST transactionManager
+autoCmit CDATA #REQUIRED
+>
+
+<!ELEMENT dataSource (property*)>
+
+<!ELEMENT mappers (mapper*)>
+
+<!ELEMENT mapper EMPTY>
+<!ATTLIST mapper
+resource CDATA #IMPLIED
+>

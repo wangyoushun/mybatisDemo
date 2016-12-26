@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration SYSTEM "mydb-config.dtd">
+<configuration>
+	<properties resource="datasource.properties">
+		<property name="test" value="test123"/>
+	</properties>
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+	</settings>
+	
+	<environments>
+		<environment id="development">
+			<transactionManager autoCmit="false"></transactionManager>
+			<dataSource>
+				<property name="driver" value="${driver}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" />
+			</dataSource>
+		</environment>
+	</environments>
+	
+	<mappers>
+		<mapper resource="com/six/mydb/UserMapper.xml"/>
+	</mappers>
+</configuration>

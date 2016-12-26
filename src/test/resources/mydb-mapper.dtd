@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+mydb 1.0
+-->
+
+<!ELEMENT mapper (resultMap |  insert* | update* | delete* | select* )+>
+<!ATTLIST mapper
+namespace CDATA #IMPLIED
+>
+
+
+<!ELEMENT resultMap (result*)>
+<!ATTLIST resultMap
+id CDATA #REQUIRED
+type CDATA #REQUIRED
+>
+
+
+<!ELEMENT result EMPTY>
+<!ATTLIST result
+property CDATA #IMPLIED
+javaType CDATA #IMPLIED
+column CDATA #IMPLIED
+jdbcType CDATA #IMPLIED
+>
+
+<!ELEMENT select (#PCDATA |  where | set | foreach  | if)*>
+<!ATTLIST select
+id CDATA #REQUIRED
+parameterMap CDATA #IMPLIED
+parameterType CDATA #IMPLIED
+resultMap CDATA #IMPLIED
+resultType CDATA #IMPLIED
+resultSetType (FORWARD_ONLY | SCROLL_INSENSITIVE | SCROLL_SENSITIVE) #IMPLIED
+resultSets CDATA #IMPLIED 
+>
+
+<!ELEMENT insert (#PCDATA |  where | set | foreach | if)*>
+<!ATTLIST insert
+id CDATA #REQUIRED
+parameterMap CDATA #IMPLIED
+parameterType CDATA #IMPLIED
+timeout CDATA #IMPLIED
+flushCache (true|false) #IMPLIED
+statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
+keyProperty CDATA #IMPLIED
+useGeneratedKeys (true|false) #IMPLIED
+keyColumn CDATA #IMPLIED
+databaseId CDATA #IMPLIED
+lang CDATA #IMPLIED
+>
+
+<!ELEMENT selectKey (#PCDATA |  where | set | foreach | if)*>
+<!ATTLIST selectKey
+resultType CDATA #IMPLIED
+statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
+keyProperty CDATA #IMPLIED
+keyColumn CDATA #IMPLIED
+order (BEFORE|AFTER) #IMPLIED
+databaseId CDATA #IMPLIED
+>
+
+<!ELEMENT update (#PCDATA |  where | set | foreach | if)*>
+<!ATTLIST update
+id CDATA #REQUIRED
+parameterMap CDATA #IMPLIED
+parameterType CDATA #IMPLIED
+timeout CDATA #IMPLIED
+flushCache (true|false) #IMPLIED
+statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
+keyProperty CDATA #IMPLIED
+useGeneratedKeys (true|false) #IMPLIED
+keyColumn CDATA #IMPLIED
+databaseId CDATA #IMPLIED
+lang CDATA #IMPLIED
+>
+
+<!ELEMENT delete (#PCDATA |  where | set | foreach | if)*>
+<!ATTLIST delete
+id CDATA #REQUIRED
+parameterMap CDATA #IMPLIED
+parameterType CDATA #IMPLIED
+timeout CDATA #IMPLIED
+flushCache (true|false) #IMPLIED
+statementType (STATEMENT|PREPARED|CALLABLE) #IMPLIED
+databaseId CDATA #IMPLIED
+lang CDATA #IMPLIED
+>
+
+<!-- Dynamic -->
+
+<!ELEMENT where (#PCDATA |  where | set | foreach | if)*>
+<!ELEMENT set (#PCDATA |  where | set | foreach | if)*>
+
+<!ELEMENT foreach (#PCDATA |  where | set | foreach | if)*>
+<!ATTLIST foreach
+collection CDATA #REQUIRED
+item CDATA #IMPLIED
+index CDATA #IMPLIED
+open CDATA #IMPLIED
+close CDATA #IMPLIED
+separator CDATA #IMPLIED
+>
+
+<!ELEMENT if (#PCDATA |  where | set | foreach | if)*>
+<!ATTLIST if
+test CDATA #REQUIRED
+>
+
+

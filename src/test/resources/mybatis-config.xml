@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<properties resource="datasource.properties">
+		<property name="dialect" value="mysql" />
+		<property name="pageSqlId" value=".*Page$" />
+	</properties>
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+		<!-- <setting name="cacheEnabled" value="true"/> -->
+		<!-- <setting name="lazyLoadingEnabled" value="false"/> -->
+		<!-- <setting name="multipleResultSetsEnabled" value="true"/> -->
+		<!-- <setting name="useColumnLabel" value="true"/> -->
+		<!-- <setting name="useGeneratedKeys" value="false"/> -->
+		<!-- <setting name="defaultExecutorType" value="SIMPLE"/> -->
+		<!-- <setting name="defaultStatementTimeout" value="25"/> -->
+	</settings>
+
+	<typeAliases>
+		<typeAlias alias="User" type="com.six.domain.User" />
+		<typeAlias alias="Score" type="com.six.domain.Score" />
+	</typeAliases>
+
+	<!-- <typeHandlers> -->
+	<!-- <typeHandler javaType="String" jdbcType="VARCHAR" handler="org.apache.ibatis.builder.ExampleTypeHandler"/> -->
+	<!-- </typeHandlers> -->
+
+	<!-- <objectFactory type="org.apache.ibatis.builder.ExampleObjectFactory"> -->
+	<!-- <property name="objectFactoryProperty" value="100"/> -->
+	<!-- </objectFactory> -->
+
+	<!-- <plugins> -->
+	<!-- <plugin interceptor="org.apache.ibatis.builder.ExamplePlugin"> -->
+	<!-- <property name="pluginProperty" value="100"/> -->
+	<!-- </plugin> -->
+	<!-- </plugins> -->
+
+	<!-- 分页插件 -->
+	<!-- http://git.oschina.net/free/Mybatis_PageHelper/blob/master/wikis/HowToUse.markdown -->
+	<plugins>
+		<!-- com.github.pagehelper为PageHelper类所在包名 -->
+		<!-- <plugin interceptor="com.github.pagehelper.PageHelper"></plugin> -->
+		<!-- <plugin interceptor="com.six.demo.TimePlugin"></plugin> -->
+		<!-- sql语句性能插件 -->
+		<!-- <plugin interceptor="com.six.demo.PerformanceInterceptor"></plugin> -->
+
+		<!-- 自定义分页插件 -->
+		 <plugin interceptor="com.six.demo.PagePlugin"></plugin>
+	</plugins>
+
+
+	<environments default="development">
+		<!-- mysql -->
+		<environment id="development">
+			<transactionManager type="JDBC">
+				<property name="" value="" />
+			</transactionManager>
+			<dataSource type="UNPOOLED">
+				<property name="driver" value="${driver}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" />
+			</dataSource>
+		</environment>
+
+		<!-- oracle -->
+		<environment id="development_oracle">
+			<transactionManager type="JDBC">
+				<property name="" value="" />
+			</transactionManager>
+			<dataSource type="UNPOOLED">
+				<property name="driver" value="${driver2}" />
+				<property name="url" value="${url2}" />
+				<property name="username" value="${username2}" />
+				<property name="password" value="${password2}" />
+			</dataSource>
+		</environment>
+	</environments>
+
+	<mappers>
+		<mapper resource="com/six/mapper/Usert.xml" />
+	</mappers>
+
+</configuration>

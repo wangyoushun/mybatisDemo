@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.six.domain.User">
+
+	<!-- 已结配置驼峰匹配 -->
+	<resultMap id="selectUser" type="User">
+	</resultMap>
+
+	<!-- <resultMap id="selectAuthor" type="org.apache.ibatis.domain.blog.Author"> -->
+	<!-- <id column="id" property="id" /> -->
+	<!-- <result property="username" column="username" /> -->
+	<!-- <result property="password" column="password" /> -->
+	<!-- <result property="email" column="email" /> -->
+	<!-- <result property="bio" column="bio" /> -->
+	<!-- <result property="favouriteSection" column="favourite_section" /> -->
+	<!-- </resultMap> -->
+
+	<!-- <resultMap id="selectImmutableAuthor" type="org.apache.ibatis.domain.blog.ImmutableAuthor"> -->
+	<!-- <constructor> -->
+	<!-- <idArg column="id" javaType="_int" /> -->
+	<!-- <arg column="username" javaType="string" /> -->
+	<!-- <arg column="password" javaType="string" /> -->
+	<!-- <arg column="email" javaType="string" /> -->
+	<!-- <arg column="bio" javaType="string" /> -->
+	<!-- <arg column="favourite_section" javaType="org.apache.ibatis.domain.blog.Section" 
+		/> -->
+	<!-- </constructor> -->
+	<!-- </resultMap> -->
+
+	<!-- <resultMap id="complexAuthorId" type="org.apache.ibatis.domain.blog.ComplexImmutableAuthorId"> -->
+	<!-- <constructor> -->
+	<!-- <idArg column="id" javaType="_int" /> -->
+	<!-- <idArg column="username" javaType="string" /> -->
+	<!-- <idArg column="password" javaType="string" /> -->
+	<!-- <idArg column="email" javaType="string" /> -->
+	<!-- </constructor> -->
+	<!-- </resultMap> -->
+
+	<!-- <resultMap id="selectComplexImmutableAuthor" type="org.apache.ibatis.domain.blog.ComplexImmutableAuthor"> -->
+	<!-- <constructor> -->
+	<!-- <idArg javaType="org.apache.ibatis.domain.blog.ComplexImmutableAuthorId" -->
+	<!-- resultMap="complexAuthorId" /> -->
+	<!-- <arg column="bio" javaType="string" /> -->
+	<!-- <arg column="favourite_section" javaType="org.apache.ibatis.domain.blog.Section" 
+		/> -->
+	<!-- </constructor> -->
+	<!-- </resultMap> -->
+
+	<select id="selectAllUser" resultType="com.six.domain.User">
+		select * from user
+	</select>
+
+	<select id="selectUserById" resultType="com.six.domain.User">
+		select * from user
+		<where>
+			<if test="id != null">id=#{id}</if>
+		</where>
+	</select>
+
+	<select id="selectUserHashMap" resultType="java.util.HashMap">
+		select id,
+		name from
+		user where id = #{id}
+	</select>
+
+	<select id="selectAllUserResultMap" resultMap="selectUser">
+		select * from user
+	</select>
+
+	<select id="selectParam" resultType="com.six.domain.User">
+		select * from user
+		order by
+		${name}
+	</select>
+
+	<select id="selectParam2" resultType="com.six.domain.User">
+		select * from user
+		<where>
+			<if test="user.name != null">name=#{user.name}</if>
+		</where>
+		order by ${order}
+	</select>
+
+	<select id="selectParam3" resultType="com.six.domain.User">
+		select * from user
+		where
+		name=#{name}
+		order by ${value}
+	</select>
+
+
+	<!-- 分页插件分页查询 -->
+	<select id="selectForListPage" resultType="com.six.domain.User">
+		select * from user
+		<where>
+			id in
+			<foreach collection="list" index="index" item="item" open="("
+				separator="," close=")">
+				#{item.id}
+			</foreach>
+		</where>
+	</select>
+
+	<select id="selectForArray" resultType="com.six.domain.User">
+		select * from user
+		<where>
+			id in
+			<foreach collection="array" index="index" item="item" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</where>
+	</select>
+
+	<select id="selectFor" resultType="com.six.domain.User">
+		select * from user
+		<where>
+			id in
+			<foreach collection="ids" index="index" item="item" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+			<if test="name!=null and name!=''">
+				and name=#{name}
+			</if>
+
+		</where>
+	</select>
+
+	<insert id="saveUser" parameterType="User">
+		insert into user
+		(id,name,address,age)
+		values (#{id},#{name},#{address,},#{age})
+	</insert>
+
+	<insert id="saveScore" parameterType="Score">
+		insert into score
+		(id,user_id,score)
+		values (#{id},#{userId},#{score})
+	</insert>
+
+	<select id="selectUserScore" resultType="java.util.HashMap">
+		select t3.*,t2.* from
+		user t3
+		LEFT JOIN
+		(SELECT t.*, s.score FROM `user` t LEFT JOIN score s ON t.id = s.user_id) t2
+		on t3.id = t2.id
+	</select>
+
+
+
+	<!-- for循环批量插入 -->
+	<insert id="saveBatch">
+		insert into user
+		(id,name,address,age)
+		values
+		<foreach collection="list" index="index" item="item"
+			separator=",">
+			(#{item.id},#{item.name},#{item.address,},#{item.age})
+		</foreach>
+	</insert>
+
+
+
+	<!-- oracle -->
+	<select id="selectBag" resultType="java.util.HashMap">
+		select * from etcmp_bag_info t
+		where to_char(t.aircraft_date, 'yyyy-MM-dd')= '2016-12-01'
+		and
+		t.DEPARTURE_CODE='PVG'
+		and t.AIRCRAFT_NUM='MU211'
+	</select>
+
+	<!-- <update id="updateAuthor" parameterType="org.apache.ibatis.domain.blog.Author"> -->
+	<!-- update Author -->
+	<!-- set username=#{username, -->
+	<!-- javaType=String}, -->
+	<!-- password=#{password}, -->
+	<!-- email=#{email}, -->
+	<!-- bio=#{bio} -->
+	<!-- where id=#{id} -->
+	<!-- </update> -->
+
+	<!-- <delete id="deleteAuthor" parameterType="int"> -->
+	<!-- delete from Author where id = #{id} -->
+	<!-- </delete> -->
+
+
+	<!-- <update id="updateAuthorIfNecessary" parameterType="org.apache.ibatis.domain.blog.Author"> -->
+	<!-- update Author -->
+	<!-- <set> -->
+	<!-- <if test="username != null">username=#{username},</if> -->
+	<!-- <if test="password != null">password=#{password},</if> -->
+	<!-- <if test="email != null">email=#{email},</if> -->
+	<!-- <if test="bio != null">bio=#{bio}</if> -->
+	<!-- </set> -->
+	<!-- where id=#{id} -->
+	<!-- </update> -->
+
+
+</mapper>
