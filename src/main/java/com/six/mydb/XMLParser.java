@@ -64,8 +64,6 @@ public class XMLParser {
 
 		Node mappersNode = (Node) xPath.evaluate("mappers", configurationNode,
 				XPathConstants.NODE);
-		// String namespace =
-		// mappersNode.getAttributes().getNamedItem("namespace").getNodeValue();
 		if (mappersNode.hasChildNodes()) {
 			NodeList childNodes = mappersNode.getChildNodes();
 			for (int i = 0; i < childNodes.getLength(); i++) {
@@ -143,11 +141,12 @@ public class XMLParser {
 				mapStatement.setParameterType(parameterType);
 				mapStatement.setResultType(resultType);
 				mapStatement.setSqlStr(sql);
-				System.out.println(mapStatement);
+//				System.out.println(mapStatement);
 				// 将解析数据放入map中， 判断map中
 				map.put(id, mapStatement);
 			}
 		}
+		config.setSqlMap(map);
 		System.out.println(map);
 	}
 

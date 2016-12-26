@@ -26,10 +26,12 @@ public class SqlSession {
 	@SuppressWarnings("unchecked")
 	public <T> List<T> selectList(String sqlId, Object param) throws SQLException {
 		
-		String sql = config.getSqlMap().get(sqlId);
+		MapStatement mapStatement = config.getSqlMap().get(sqlId);
+		String sql = mapStatement.getSqlStr();
 		if(sql==null || "".equals(sql))
 			throw new MydbExeceptions("no sqlid "+sqlId +" in xml");
 		
+		System.out.println(mapStatement);
 		
 		
 		
