@@ -7,9 +7,14 @@ public class TokenParser {
 	private Properties properties;
 	private String pre = "${";
 	private String end = "}";
+	private Config config;
 
 	public TokenParser(Properties properties) {
 		this.properties = properties;
+	}
+
+	public TokenParser(Config config) {
+		this.config = config;
 	}
 
 	public TokenParser() {
@@ -27,11 +32,13 @@ public class TokenParser {
 	}
 
 	public String parserSql(String str) {
-		int startIndex = str.indexOf(pre);
-		int endIndex = str.indexOf(end);
-		String subBefore = str.substring(0, startIndex);
-		String subAfter = str.substring(endIndex + 1);
-		str = subBefore + "?" + subAfter;
+		while (str.contains(pre) && str.contains(end)) {
+			int startIndex = str.indexOf(pre);
+			int endIndex = str.indexOf(end);
+			String subBefore = str.substring(0, startIndex);
+			String subAfter = str.substring(endIndex + 1);
+			str = subBefore + "?" + subAfter;
+		}
 		return str;
 	}
 

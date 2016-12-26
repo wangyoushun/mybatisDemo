@@ -109,11 +109,12 @@ public class XmlParserTest {
 
 	@Test
 	public void testParam(){
-		String sql = "select * from user  t where t.id=${id}";
-		Properties properties = new Properties();
-		properties.setProperty("id", "123");
-		//解析传入参数，
-		TokenParser tokenParser = new TokenParser(properties);
+		String sql = "select * from user  t where t.id=${id} and t.name=${name}";
+//		Properties properties = new Properties();
+//		properties.setProperty("id", "123");
+//		//解析传入参数，
+//		TokenParser tokenParser = new TokenParser(properties);
+		TokenParser tokenParser = new TokenParser();
 		String parser = tokenParser.parserSql(sql);
 		
 		System.out.println(parser);

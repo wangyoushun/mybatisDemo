@@ -13,7 +13,7 @@ public class Main {
 	public void test01() throws Exception {
 		String configPath="mydb-config.xml";
 		SqlSession session = new SqlSessionFactory(configPath).opsession();
-		List<Object> selectList = session.selectList("select * from user", null);
-		System.out.println(selectList);
+//		List<Object> selectList = session.selectList("select * from user", null);
+//		System.out.println(selectList);
 	}
 }

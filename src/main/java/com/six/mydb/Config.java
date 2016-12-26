@@ -7,8 +7,17 @@ public class Config {
 	private Properties setProperties;
 	private Map<String, String> setMap;
 	private Environment environment;
+	private Map<String, String> sqlMap;
 
+	
 
+	public Map<String, String> getSqlMap() {
+		return sqlMap;
+	}
+
+	public void setSqlMap(Map<String, String> sqlMap) {
+		this.sqlMap = sqlMap;
+	}
 
 	public Environment getEnvironment() {
 		return environment;

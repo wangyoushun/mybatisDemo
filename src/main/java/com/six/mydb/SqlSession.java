@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.six.mydb.exceptions.MydbExeceptions;
+
 public class SqlSession {
 
 	private Connection connection;
@@ -22,17 +24,33 @@ public class SqlSession {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> List<T> selectList(String sql, Object param) throws SQLException {
+	public <T> List<T> selectList(String sqlId, Object param) throws SQLException {
+		
+		String sql = config.getSqlMap().get(sqlId);
+		if(sql==null || "".equals(sql))
+			throw new MydbExeceptions("no sqlid "+sqlId +" in xml");
+		
+		
+		
+		
+		//
+//		TokenParser tokenParser = new TokenParser();
+//		String parserSql = tokenParser.parserSql(sql);
+//		PreparedStatement prepareStatement = connection.prepareStatement(parserSql);
+//		prepareStatement.setObject(parameterIndex, x);
+		
+		
+		
 		List<Map<String, Object>> rsList = null;
 		
-
-		PreparedStatement prepareStatement = connection.prepareStatement(sql);
-		
-		
-		
-		ResultSet rs = prepareStatement.executeQuery();
-
-		rsList = resultToListMap(rs);
+//
+//		
+//		
+//		
+//		
+//		ResultSet rs = prepareStatement.executeQuery();
+//
+//		rsList = resultToListMap(rs);
 
 		return (List<T>) rsList;
 	}

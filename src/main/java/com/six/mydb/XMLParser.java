@@ -56,6 +56,9 @@ public class XMLParser {
 		return config;
 	}
 
+	/**
+	 * 解析config文件中mapper标签
+	 */
 	public void parserMappers(Node configurationNode) throws Exception {
 		logger.debug("=========parserMappers============start");
 
@@ -93,41 +96,72 @@ public class XMLParser {
 				XPathConstants.NODE);
 		String nameSpace = mapper.getAttributes().getNamedItem("namespace")
 				.getNodeValue();
-		
+
 		parserSelectStatement(mapper);
-		
-		
+
 		System.out.println(nameSpace);
 		logger.debug("=========parserMapper============end");
 
 	}
-	
-	
-	
 
-	public void parserSelectStatement(Node node) throws XPathExpressionException {
+	/**
+	 * 解析mapper文件中的标签
+	 */
+	public void parserSelectStatement(Node node) throws Exception {
 		Node selectNode = (Node) xPath.evaluate("select", node,
 				XPathConstants.NODE);
-		
-		String id = getAttrValue(selectNode, "id");
-		String parameterType = getAttrValue(selectNode, "parameterType");
-		String resultType = getAttrValue(selectNode, "resultType");
-		
-		
-		
-		
-		System.out.println(id+"--"+parameterType+"--"+resultType);
-		
+		parsesSelect(selectNode);
 	}
 
-	public String getAttrValue(Node node,String name){
-		 Node namedItem = node.getAttributes().getNamedItem(name);
-		 if(namedItem==null){
-			 return null;
-		 }
+	/**
+	 * 解析mapper文件中select标签
+	 */
+	public void parsesSelect(Node mapper) throws Exception {
+		NodeList selectNodes = (NodeList) xPath.evaluate("//select", mapper,
+				XPathConstants.NODESET);
+		Map<String, MapStatement> map = new HashMap<String, MapStatement>();
+
+		for (int i = 0; i < selectNodes.getLength(); i++) {
+			Node selectNode = selectNodes.item(i);
+			if (selectNode.getNodeType() == Node.ELEMENT_NODE) {
+				String id = getAttrValue(selectNode, "id");
+				String parameterType = getAttrValue(selectNode, "parameterType");
+				String resultType = getAttrValue(selectNode, "resultType");
+				NodeList childNodes = selectNode.getChildNodes();
+				String sql = "";
+
+				for (int j = 0; j < childNodes.getLength(); j++) {
+					String nodeName = childNodes.item(j).getNodeName();
+					String nodeValue = childNodes.item(j).getNodeValue();
+					if ("#text".equals(nodeName)) {
+						nodeValue = nodeValue.trim();
+						sql += nodeValue;
+					}
+				}
+				MapStatement mapStatement = new MapStatement();
+				mapStatement.setId(id);
+				mapStatement.setParameterType(parameterType);
+				mapStatement.setResultType(resultType);
+				mapStatement.setSqlStr(sql);
+				System.out.println(mapStatement);
+				// 将解析数据放入map中， 判断map中
+				map.put(id, mapStatement);
+			}
+		}
+		System.out.println(map);
+	}
+
+	public String getAttrValue(Node node, String name) {
+		Node namedItem = node.getAttributes().getNamedItem(name);
+		if (namedItem == null) {
+			return null;
+		}
 		return namedItem.getNodeValue();
 	}
-	
+
+	/**
+	 * 解析config文件parserProperties标签
+	 */
 	public void parserProperties(Node configurationNode) throws Exception {
 		logger.debug("=========parserProperties============  start");
 		Node propertiesNode = (Node) xPath.evaluate("properties",
@@ -167,6 +201,9 @@ public class XMLParser {
 
 	}
 
+	/**
+	 * 解析config文件setting标签
+	 */
 	public void parserSettings(Node configurationNode) throws Exception {
 		logger.debug("=========parserSettings=================start");
 		Node settingsNode = (Node) xPath.evaluate("settings",
@@ -191,6 +228,9 @@ public class XMLParser {
 
 	}
 
+	/**
+	 * 解析config文件environment标签
+	 */
 	public void parserEnvironments(Node configurationNode) throws Exception {
 		logger.debug("=========parserEnvironments===============start");
 		Node environmentsNode = (Node) xPath.evaluate("environments",
@@ -223,7 +263,7 @@ public class XMLParser {
 				config.setEnvironment(environment);
 			}
 		}
-       logger.debug("=========parserEnvironments==================end");
+		logger.debug("=========parserEnvironments==================end");
 	}
 
 	public void parserValue(Map<String, String> childAttr) {
@@ -266,15 +306,15 @@ public class XMLParser {
 		}
 	}
 
+	public Config getConfig() {
+		return config;
+	}
+
 	@Test
 	public void testName() throws Exception {
 		InputStream resourceAsStream = getClass().getClassLoader()
 				.getResourceAsStream("com/six/mydb/UserMapper.xml");
 		System.out.println(resourceAsStream);
-	}
-
-	public Config getConfig() {
-		return config;
 	}
 
 	public void print(String msg) {
