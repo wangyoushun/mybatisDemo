@@ -1,11 +1,25 @@
 package com.six.mydb;
 
+import java.util.List;
+
 public class MapStatement {
 	private String sqlStr;
 	private String parameterType;
 	private String resultType;
 	private String id;
 	private String warpSql;
+	private List<String> paramKey;
+
+	
+	
+	
+	public List<String> getParamKey() {
+		return paramKey;
+	}
+
+	public void setParamKey(List<String> paramKey) {
+		this.paramKey = paramKey;
+	}
 
 	public String getSqlStr() {
 		return sqlStr;

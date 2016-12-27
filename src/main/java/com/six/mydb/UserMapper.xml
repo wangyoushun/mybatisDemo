@@ -15,4 +15,16 @@
 		select * from user  t
 		where t.id=${id}
 	</select>
+	
+	<select id="selectUserByObj" parameterType="com.six.mydb.entity.User" resultType="com.six.domain.User">
+		select * from user  t
+		where t.id=${id}
+		and t.name=${name}
+	</select>
+	
+	<select id="selectUserByObj" parameterType="java.util.Map" resultType="com.six.domain.User">
+		select * from user  t
+		where t.id=${id}
+		and t.name=${name}
+	</select>
 </mapper>

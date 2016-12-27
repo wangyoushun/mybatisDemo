@@ -4,7 +4,11 @@ import static org.junit.Assert.*;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -64,6 +68,7 @@ public class XmlParserTest {
 		NodeList selectNodes = (NodeList) xPath.evaluate("//select", mapper,
 				XPathConstants.NODESET);
 		Map<String,MapStatement> map = new HashMap<String,MapStatement>();
+		TokenParser parser = new TokenParser();
 		
 		for (int i = 0; i < selectNodes.getLength(); i++) {
 			Node selectNode = selectNodes.item(i);
@@ -82,11 +87,12 @@ public class XmlParserTest {
 						sql += nodeValue;
 					}
 				}
+				
 				MapStatement mapStatement = new MapStatement();
 				mapStatement.setId(id);
 				mapStatement.setParameterType(parameterType);
 				mapStatement.setResultType(resultType);
-				mapStatement.setSqlStr(sql);
+				mapStatement.setSqlStr(parser.parserSql(sql));
 				System.out.println(mapStatement);
 				//将解析数据放入map中， 判断map中
 				map.put(id, mapStatement);
@@ -123,9 +129,7 @@ public class XmlParserTest {
 	//测试反射
 	@Test
 	public void testReflect(){
-//		String path = "com.six.domain.User";
-		String path = "com.six.mydb.Config";
-	
+		String path = "com.six.domain.User";
 		Class<?> clazz;
 		try {
 			clazz = Class.forName(path);
@@ -135,11 +139,58 @@ public class XmlParserTest {
 			}
 			
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
+	//get
+	@Test
+	public void testReflectGet() throws Exception{
+		String path = "com.six.domain.User";
+		Class<?> clazz;
+		try {
+			clazz = Class.forName(path);
+			Object object = clazz.newInstance();
+			Method[] methods = clazz.getMethods();
+			for (Method method : methods) {
+				String name = method.getName();
+				if(name!=null && name.length()>3 && "get".equals(name.substring(0, 3)) && !"getClass".equals(name)){
+					System.out.println(name);
+					Object invoke = method.invoke(object);
+					System.out.println(invoke);
+				}
+			}
+			
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	//获取sql中传入参数名
+	@Test
+	public void testParamKey(){
+		String str="select * from user  t where t.id=${id} and name=${name}";
+		List<String> paramKeyList = new ArrayList<String>();
+		String paramKey="";
+		while (str.contains("${") && str.contains("}")) {
+			int startIndex = str.indexOf("${");
+			int endIndex = str.indexOf("}");
+			paramKey = str.substring(startIndex + "${".length(), endIndex);
+			paramKeyList.add(paramKey);
+			if(endIndex<str.length())
+				str=str.substring(endIndex+1);
+		}
+		System.out.println(paramKeyList);
+	}
+	
+	@Test
+	public void testUnlow() throws Exception {
+		String str="getAge";
+//		String substring = str.substring(3);
+//		String substring2 = substring.substring(0, 1);
+//		System.out.println(substring2.toLowerCase()+substring.substring(1));
+		System.out.println(str.substring(3, 4).toLowerCase()+str.substring(4));
+	}
 	
 	public String getAttrValue(Node node, String name) {
 		Node namedItem = node.getAttributes().getNamedItem(name);

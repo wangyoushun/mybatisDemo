@@ -94,10 +94,9 @@ public class XMLParser {
 				XPathConstants.NODE);
 		String nameSpace = mapper.getAttributes().getNamedItem("namespace")
 				.getNodeValue();
-
-		parserSelectStatement(mapper);
-
 		System.out.println(nameSpace);
+		parserSelectStatement(mapper,nameSpace);
+		
 		logger.debug("=========parserMapper============end");
 
 	}
@@ -105,20 +104,21 @@ public class XMLParser {
 	/**
 	 * 解析mapper文件中的标签
 	 */
-	public void parserSelectStatement(Node node) throws Exception {
+	public void parserSelectStatement(Node node,String nameSpace) throws Exception {
 		Node selectNode = (Node) xPath.evaluate("select", node,
 				XPathConstants.NODE);
-		parsesSelect(selectNode);
+		parsesSelect(selectNode,nameSpace);
 	}
 
 	/**
 	 * 解析mapper文件中select标签
 	 */
-	public void parsesSelect(Node mapper) throws Exception {
+	public void parsesSelect(Node mapper,String nameSpace) throws Exception {
 		NodeList selectNodes = (NodeList) xPath.evaluate("//select", mapper,
 				XPathConstants.NODESET);
 		Map<String, MapStatement> map = new HashMap<String, MapStatement>();
-
+		TokenParser parser = new TokenParser();
+		
 		for (int i = 0; i < selectNodes.getLength(); i++) {
 			Node selectNode = selectNodes.item(i);
 			if (selectNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -137,11 +137,11 @@ public class XMLParser {
 					}
 				}
 				MapStatement mapStatement = new MapStatement();
-				mapStatement.setId(id);
+				mapStatement.setId(nameSpace+"."+id);
 				mapStatement.setParameterType(parameterType);
 				mapStatement.setResultType(resultType);
-				mapStatement.setSqlStr(sql);
-//				System.out.println(mapStatement);
+				mapStatement.setSqlStr(parser.parserSql(sql));	
+				mapStatement.setParamKey(parser.parserSqlParam(sql));
 				// 将解析数据放入map中， 判断map中
 				map.put(id, mapStatement);
 			}

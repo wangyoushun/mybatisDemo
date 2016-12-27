@@ -1,5 +1,7 @@
 package com.six.mydb;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class TokenParser {
@@ -41,16 +43,18 @@ public class TokenParser {
 		}
 		return str;
 	}
-
-	// public String parserSql(String str) {
-	// int startIndex = str.indexOf(pre);
-	// int endIndex = str.indexOf(end);
-	// String subBefore = str.substring(0, startIndex);
-	// String subAfter = str.substring(endIndex + 1);
-	// String sql = str.substring(startIndex + pre.length(), endIndex);
-	// if (properties != null && properties.containsKey(sql)) {
-	// str = subBefore + properties.getProperty(sql) + subAfter;
-	// }
-	// return str;
-	// }
+	
+	public List<String> parserSqlParam(String str) {
+		List<String> paramKeyList = new ArrayList<String>();
+		String paramKey="";
+		while (str.contains(pre) && str.contains(end)) {
+			int startIndex = str.indexOf(pre);
+			int endIndex = str.indexOf(end);
+			paramKey = str.substring(startIndex + pre.length(), endIndex);
+			paramKeyList.add(paramKey);
+			if(endIndex<str.length())
+				str=str.substring(endIndex+1);
+		}
+		return paramKeyList;
+	}
 }
