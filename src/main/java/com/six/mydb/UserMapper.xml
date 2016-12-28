@@ -22,9 +22,17 @@
 		and t.name=${name}
 	</select>
 	
-	<select id="selectUserByObj" parameterType="java.util.Map" resultType="com.six.domain.User">
+	<select id="selectUserByMap" parameterType="java.util.Map" resultType="com.six.domain.User">
 		select * from user  t
 		where t.id=${id}
 		and t.name=${name}
+	</select>
+	
+	<select id="selectByNoparam">
+		select * from user  t
+	</select>
+	
+	<select id="selectResultObj" resultType="com.six.mydb.entity.User">
+		select * from user  t
 	</select>
 </mapper>

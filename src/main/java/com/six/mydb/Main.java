@@ -16,7 +16,24 @@ public class Main {
 
 	public static void main(String[] args) throws Exception {
 //		test011();
-		
+//		test02();
+//		test03();
+		String configPath="mydb-config.xml";
+		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		List<Object> selectList = session.selectList("com.six.domain.User.selectResultObj", null);
+		System.out.println(selectList);
+		session.close();
+	}
+
+	private static void test03() throws Exception, SQLException {
+		String configPath="mydb-config.xml";
+		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		List<Object> selectList = session.selectList("com.six.domain.User.selectByNoparam", null);
+		System.out.println(selectList);
+		session.close();
+	}
+
+	private static void test02() throws Exception, SQLException {
 		String configPath="mydb-config.xml";
 		SqlSession session = new SqlSessionFactory(configPath).opsession();
 		Map<String,Object> map = new HashMap<String,Object>();
@@ -25,8 +42,6 @@ public class Main {
 		List<Object> selectList = session.selectList("selectUserByMap", map);
 		System.out.println(selectList);
 		session.close();
-	
-		
 	}
 
 	private static void test011() throws Exception, SQLException {

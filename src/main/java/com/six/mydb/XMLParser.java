@@ -143,7 +143,7 @@ public class XMLParser {
 				mapStatement.setSqlStr(parser.parserSql(sql));	
 				mapStatement.setParamKey(parser.parserSqlParam(sql));
 				// 将解析数据放入map中， 判断map中
-				map.put(id, mapStatement);
+				map.put(nameSpace+"."+id, mapStatement);
 			}
 		}
 		config.setSqlMap(map);

@@ -7,10 +7,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -91,11 +91,67 @@ public class SqlSession {
 		}
 
 		ResultSet rs = prepareStatement.executeQuery();
-		List<Map<String, Object>> rsList = resultToListMap(rs);
-		return (List<T>) rsList;
+		
+		String resultType = mapStatement.getResultType();
+		if(resultType==null || resultType.length()==0){
+			return (List<T>)resultToListMap(rs);
+		}else{
+			return (List<T>)resultToListObj(rs, Class.forName(resultType));
+		}
 	}
 
-	private static List<Map<String, Object>> resultToListMap(ResultSet rs)
+	/**
+	 * 结果集转为对象
+	 */
+	private  <T> List<T> resultToListObj(ResultSet rs, Class<T> clazz)
+			throws SQLException, Exception {
+		List<T> list = new ArrayList<T>();
+		if (rs != null) {
+			T obj = clazz.newInstance();
+			while (rs.next()) {
+				ResultSetMetaData metaData = rs.getMetaData();
+				for (int i = 1; i <= metaData.getColumnCount(); i++) {
+					String key = underlineToCamel(metaData.getColumnLabel(i)
+							.toLowerCase());
+					Method[] methods = clazz.getMethods();
+					for (Method method : methods) {
+						String name = method.getName();
+						if (name != null && name.length() > 3
+								&& "set".equals(name.substring(0, 3))) {
+							name = name.substring(3);
+							if (name.equals(key.substring(0, 1).toUpperCase()
+									+ key.substring(1))) {
+								Class<?>[] parameterTypes = method
+										.getParameterTypes();
+								if (parameterTypes[0] == Integer.class) {
+									method.invoke(obj, rs.getInt(i));
+								} else if (parameterTypes[0] == String.class) {
+									method.invoke(obj, rs.getString(i));
+								} else if (parameterTypes[0] == Long.class) {
+									method.invoke(obj, rs.getLong(i));
+								} else if (parameterTypes[0] == Double.class) {
+									method.invoke(obj, rs.getDate(i));
+								} else if (parameterTypes[0] == Byte.class) {
+									method.invoke(obj, rs.getByte(i));
+								} else if (parameterTypes[0] == Float.class) {
+									method.invoke(obj, rs.getFloat(i));
+								} else if (parameterTypes[0] == Date.class) {
+									method.invoke(obj, rs.getDate(i));
+								}
+							}
+						}
+					}
+				}
+				list.add(obj);
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * rs结果集转化为map
+	 */
+	private List<Map<String, Object>> resultToListMap(ResultSet rs)
 			throws SQLException {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 
@@ -110,6 +166,32 @@ public class SqlSession {
 			}
 		}
 		return list;
+	}
+
+	/**
+	 * 字符串下划线转为驼峰
+	 * 
+	 * @param param
+	 * @return
+	 */
+	public static String underlineToCamel(String param) {
+		char ch = '_';
+		if (param == null || "".equals(param.trim())) {
+			return "";
+		}
+		int len = param.length();
+		StringBuilder sb = new StringBuilder(len);
+		for (int i = 0; i < len; i++) {
+			char c = param.charAt(i);
+			if (c == ch) {
+				if (++i < len) {
+					sb.append(Character.toUpperCase(param.charAt(i)));
+				}
+			} else {
+				sb.append(c);
+			}
+		}
+		return sb.toString();
 	}
 
 	public void close() throws SQLException {
