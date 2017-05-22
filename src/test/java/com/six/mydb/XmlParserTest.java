@@ -20,6 +20,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import ognl.Ognl;
+
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +29,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.six.domain.User;
+import com.six.mydb.utils.OgnlHelper;
+import com.six.mydb.utils.StrConvertCode;
 
 public class XmlParserTest {
 
@@ -60,17 +66,18 @@ public class XmlParserTest {
 		System.out.println(nameSpace);
 	}
 
-	//测试获取mappe.xml数据
+	// getNode List
 	@Test
-	public void getAttrValue() throws Exception {
+	public void getNodeList() throws Exception {
 		Node mapper = (Node) xPath.evaluate("/mapper", document,
 				XPathConstants.NODE);
 		NodeList selectNodes = (NodeList) xPath.evaluate("//select", mapper,
 				XPathConstants.NODESET);
-		Map<String,MapStatement> map = new HashMap<String,MapStatement>();
+		Map<String, MapStatement> map = new HashMap<String, MapStatement>();
 		TokenParser parser = new TokenParser();
-		
+
 		for (int i = 0; i < selectNodes.getLength(); i++) {
+			List<Node> nodeList = new ArrayList<Node>();
 			Node selectNode = selectNodes.item(i);
 			if (selectNode.getNodeType() == Node.ELEMENT_NODE) {
 				String id = getAttrValue(selectNode, "id");
@@ -79,73 +86,182 @@ public class XmlParserTest {
 				NodeList childNodes = selectNode.getChildNodes();
 				String sql = "";
 
+				if ("selectif".equals(id)) {
+					System.out.println("selectif");
+				}
+
+				for (int j = 0; j < childNodes.getLength(); j++) {
+					Node item = childNodes.item(j);
+					nodeList.add(item);
+				}
+
+				MapStatement mapStatement = new MapStatement();
+				mapStatement.setId(id);
+				mapStatement.setParameterType(parameterType);
+				mapStatement.setResultType(resultType);
+				mapStatement.setSqlStr(parser.parserSql(sql));
+				mapStatement.setNodeList(nodeList);
+				// System.out.println(mapStatement);
+				// 将解析数据放入map中， 判断map中
+				map.put(id, mapStatement);
+			}
+		}
+		System.out.println(map.get("selectif"));
+	}
+
+	// 测试获取mappe.xml数据
+	@Test
+	public void getAttrValue() throws Exception {
+		Node mapper = (Node) xPath.evaluate("/mapper", document,
+				XPathConstants.NODE);
+		NodeList selectNodes = (NodeList) xPath.evaluate("//select", mapper,
+				XPathConstants.NODESET);
+		Map<String, MapStatement> map = new HashMap<String, MapStatement>();
+		TokenParser parser = new TokenParser();
+
+		for (int i = 0; i < selectNodes.getLength(); i++) {
+			Node selectNode = selectNodes.item(i);
+			if (selectNode.getNodeType() == Node.ELEMENT_NODE) {
+				String id = getAttrValue(selectNode, "id");
+				String parameterType = getAttrValue(selectNode, "parameterType");
+				String resultType = getAttrValue(selectNode, "resultType");
+				NodeList childNodes = selectNode.getChildNodes();
+				String sql = "";
+				Map<String, Object> dymap = new HashMap<String, Object>();
+
 				for (int j = 0; j < childNodes.getLength(); j++) {
 					String nodeName = childNodes.item(j).getNodeName();
 					String nodeValue = childNodes.item(j).getNodeValue();
+
 					if ("#text".equals(nodeName)) {
 						nodeValue = nodeValue.trim();
 						sql += nodeValue;
 					}
 				}
-				
+
 				MapStatement mapStatement = new MapStatement();
 				mapStatement.setId(id);
 				mapStatement.setParameterType(parameterType);
 				mapStatement.setResultType(resultType);
 				mapStatement.setSqlStr(parser.parserSql(sql));
 				System.out.println(mapStatement);
-				//将解析数据放入map中， 判断map中
+				// 将解析数据放入map中， 判断map中
 				map.put(id, mapStatement);
 			}
 		}
-		
+
 		System.out.println(map);
 	}
-	
-//	@Test
-	public void testsql(Map<String,MapStatement> map) throws Exception {
+
+	// test递归把所有节点加入集合
+	@Test
+	public void testName1() throws Exception {
+		Node mapper = (Node) xPath.evaluate("/mapper", document,
+				XPathConstants.NODE);
+		NodeList selectNodes = (NodeList) xPath.evaluate("//select", mapper,
+				XPathConstants.NODESET);
+		for (int i = 0; i < selectNodes.getLength(); i++) {
+			Node selectNode = selectNodes.item(i);
+			if (selectNode.getNodeType() == Node.ELEMENT_NODE) {
+				String id = getAttrValue(selectNode, "id");
+				if ("selectif".equals(id)) {
+					System.out.println("selectif");
+				} else {
+					continue;
+				}
+			}
+			List<Node> list = new ArrayList<Node>();
+			digui(selectNode, list);
+			System.out.println(list);
+			String str = " ";
+			for(int j=0; j<list.size(); j++){
+				Node node = list.get(j);
+				String nodeName = node.getNodeName();
+				String nodeValue = node.getNodeValue();
+
+				if ("select".equals(nodeName)) {
+					System.out.println(nodeName);
+				} else if ("#text".equals(nodeName)) {
+					if (nodeValue != null && !"".equals(nodeValue)) {
+						str += nodeValue + " ";
+					}
+				} else if ("where".equals(nodeName)) {
+					str += nodeName;
+				}else if("if".equals(nodeName)){
+					String attrValue = getAttrValue(node,"test");
+					attrValue="#{"+attrValue+"}";
+					System.out.println(attrValue);
+					Map<String,Object> m=new HashMap<String,Object>();
+					String id="123";
+					m.put("id", id);
+					Object value = OgnlHelper.getValue(attrValue, m);
+					System.out.println(value);
+				}
+			}
+			System.out.println(str);
+		}
+
+	}
+
+	// 递归把所有节点加入集合
+	public void digui(Node node, List<Node> list) {
+		if (node.hasChildNodes()) {
+			NodeList childNodes = node.getChildNodes();
+			list.add(node);
+			// System.out.println(node);
+			for (int i = 0; i < childNodes.getLength(); i++) {
+				Node item = childNodes.item(i);
+				digui(item, list);
+			}
+		} else {
+			list.add(node);
+			// System.out.println(node);
+		}
+	}
+
+	// @Test
+	public void testsql(Map<String, MapStatement> map) throws Exception {
 		MapStatement mapStatement = map.get("selectAllUser");
 		String parameterType = mapStatement.getParameterType();
-		
-		if(parameterType==null || "".equals(parameterType))
+
+		if (parameterType == null || "".equals(parameterType))
 			return;
-		
+
 	}
-	
 
 	@Test
-	public void testParam(){
+	public void testParam() {
 		String sql = "select * from user  t where t.id=${id} and t.name=${name}";
-//		Properties properties = new Properties();
-//		properties.setProperty("id", "123");
-//		//解析传入参数，
-//		TokenParser tokenParser = new TokenParser(properties);
+		// Properties properties = new Properties();
+		// properties.setProperty("id", "123");
+		// //解析传入参数，
+		// TokenParser tokenParser = new TokenParser(properties);
 		TokenParser tokenParser = new TokenParser();
 		String parser = tokenParser.parserSql(sql);
-		
+
 		System.out.println(parser);
 	}
-	
-	//测试反射
+
+	// 测试反射
 	@Test
-	public void testReflect(){
+	public void testReflect() {
 		String path = "com.six.domain.User";
 		Class<?> clazz;
 		try {
 			clazz = Class.forName(path);
 			Field[] declaredFields = clazz.getDeclaredFields();
 			for (Field field : declaredFields) {
-				System.out.println(field.getName()+"--"+field.getType());
+				System.out.println(field.getName() + "--" + field.getType());
 			}
-			
+
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	//get
+
+	// get
 	@Test
-	public void testReflectGet() throws Exception{
+	public void testReflectGet() throws Exception {
 		String path = "com.six.domain.User";
 		Class<?> clazz;
 		try {
@@ -154,44 +270,47 @@ public class XmlParserTest {
 			Method[] methods = clazz.getMethods();
 			for (Method method : methods) {
 				String name = method.getName();
-				if(name!=null && name.length()>3 && "get".equals(name.substring(0, 3)) && !"getClass".equals(name)){
+				if (name != null && name.length() > 3
+						&& "get".equals(name.substring(0, 3))
+						&& !"getClass".equals(name)) {
 					System.out.println(name);
 					Object invoke = method.invoke(object);
 					System.out.println(invoke);
 				}
 			}
-			
+
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	//获取sql中传入参数名
+
+	// 获取sql中传入参数名
 	@Test
-	public void testParamKey(){
-		String str="select * from user  t where t.id=${id} and name=${name}";
+	public void testParamKey() {
+		String str = "select * from user  t where t.id=${id} and name=${name}";
 		List<String> paramKeyList = new ArrayList<String>();
-		String paramKey="";
+		String paramKey = "";
 		while (str.contains("${") && str.contains("}")) {
 			int startIndex = str.indexOf("${");
 			int endIndex = str.indexOf("}");
 			paramKey = str.substring(startIndex + "${".length(), endIndex);
 			paramKeyList.add(paramKey);
-			if(endIndex<str.length())
-				str=str.substring(endIndex+1);
+			if (endIndex < str.length())
+				str = str.substring(endIndex + 1);
 		}
 		System.out.println(paramKeyList);
 	}
-	
+
 	@Test
 	public void testUnlow() throws Exception {
-		String str="getAge";
-//		String substring = str.substring(3);
-//		String substring2 = substring.substring(0, 1);
-//		System.out.println(substring2.toLowerCase()+substring.substring(1));
-		System.out.println(str.substring(3, 4).toLowerCase()+str.substring(4));
+		String str = "getAge";
+		// String substring = str.substring(3);
+		// String substring2 = substring.substring(0, 1);
+		// System.out.println(substring2.toLowerCase()+substring.substring(1));
+		System.out
+				.println(str.substring(3, 4).toLowerCase() + str.substring(4));
 	}
-	
+
 	public String getAttrValue(Node node, String name) {
 		Node namedItem = node.getAttributes().getNamedItem(name);
 		if (namedItem == null) {

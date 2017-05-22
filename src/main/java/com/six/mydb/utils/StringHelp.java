@@ -1,4 +1,4 @@
-package com.six.mydb;
+package com.six.mydb.utils;
 
 public class StringHelp {
 

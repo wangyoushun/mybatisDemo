@@ -82,6 +82,7 @@
 
 	<mappers>
 		<mapper resource="com/six/mapper/Usert.xml" />
+		<mapper resource="com/six/mapper/Etcmp.xml" />
 	</mappers>
 
 </configuration>

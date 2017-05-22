@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dzpzd">
+
+	<!-- 已结配置驼峰匹配 -->
+	<insert id="savesBag" parameterType="com.six.domain.BagInfo">
+		INSERT INTO etcmp_bag_info
+		VALUES
+		(#{bagId,jdbcType=VARCHAR},#{aircraftNum,jdbcType=VARCHAR},
+		#{aircraftType,jdbcType=VARCHAR},#{expectDepartureTime,jdbcType=DATE},
+		#{realDepartureTime,jdbcType=DATE},#{dismatchNum,jdbcType=INTEGER},
+		#{operateUserId,jdbcType=VARCHAR},#{manageUserId,jdbcType=VARCHAR},
+		#{aircraftDate,jdbcType=DATE},#{statusId,jdbcType=VARCHAR},
+		#{arriveCode,jdbcType=VARCHAR},#{departureCode,jdbcType=VARCHAR},
+		#{aircraftStatus,jdbcType=VARCHAR},#{passengers,jdbcType=INTEGER},#{inputTime,jdbcType=DATE},#{carrier,jdbcType=VARCHAR},#{insertFlag,jdbcType=INTEGER},#{operateUserName,jdbcType=VARCHAR},#{manageUserName,jdbcType=VARCHAR},#{deviceInt,jdbcType=VARCHAR},#{paperTicket,jdbcType=INTEGER},#{totalPassengers,jdbcType=INTEGER},#{baggageCheck,jdbcType=INTEGER},#{receipt,jdbcType=VARCHAR},#{commentInfo,jdbcType=VARCHAR},#{actualPassengers,jdbcType=INTEGER},#{baggingTime,jdbcType=DATE},#{displayFlag,jdbcType=INTEGER},#{mco,jdbcType=VARCHAR},#{openDay,jdbcType=INTEGER},#{openNote,jdbcType=VARCHAR},#{openDate,jdbcType=DATE},#{openUser,jdbcType=VARCHAR},#{submitFlag,jdbcType=INTEGER},#{adult,jdbcType=INTEGER},#{baby,jdbcType=INTEGER},#{exInt,jdbcType=INTEGER},#{paperVerify,jdbcType=INTEGER},#{interFlg,jdbcType=VARCHAR},#{fimInt,jdbcType=INTEGER},#{delayChange,jdbcType=VARCHAR},#{isVacancy,jdbcType=VARCHAR},#{interNum,jdbcType=INTEGER},#{domesticNum,jdbcType=INTEGER},#{isHandle,jdbcType=INTEGER},#{emdInt,jdbcType=INTEGER},#{emdIntAt,jdbcType=INTEGER},#{sumn,jdbcType=INTEGER},#{sumet,jdbcType=INTEGER},#{hasAdd,jdbcType=INTEGER}
+		
+		);
+	</insert>
+
+	<insert id="savesBagDetail" parameterType="com.six.domain.BagDetail">
+		INSERT INTO
+		etcmp_bag_detail
+		VALUES
+		(#{detailId,jdbcType=VARCHAR},#{bagId,jdbcType=VARCHAR},#{arriveCode,jdbcType=VARCHAR},#{passengerName,jdbcType=VARCHAR},#{passengerRecord,jdbcType=VARCHAR},#{passengerTicketnum,jdbcType=VARCHAR},#{passengerSeattype,jdbcType=VARCHAR},#{credentialsType,jdbcType=VARCHAR},#{credentialsValue,jdbcType=VARCHAR},#{cardNum,jdbcType=VARCHAR},#{aircraftDate,jdbcType=DATE},#{departureCode,jdbcType=VARCHAR},#{aircraftNum,jdbcType=VARCHAR},#{ticketType,jdbcType=VARCHAR},#{deleteFlag,jdbcType=VARCHAR},#{coupon,jdbcType=VARCHAR},#{statusId,jdbcType=VARCHAR},#{icsTicketnum,jdbcType=VARCHAR},#{icsFlightno,jdbcType=VARCHAR},#{ticketStatus,jdbcType=VARCHAR},#{icsDeptCode,jdbcType=VARCHAR},#{icsArrCode,jdbcType=VARCHAR},#{isDuplicate,jdbcType=VARCHAR},#{closeFlag,jdbcType=VARCHAR},#{lmd,jdbcType=DATE},#{lmu,jdbcType=VARCHAR},#{lmname,jdbcType=VARCHAR},#{icsCarbin,jdbcType=VARCHAR},#{originalTicketType,jdbcType=VARCHAR},#{icsFlightdate,jdbcType=DATE},#{interFlg,jdbcType=VARCHAR},#{isRide,jdbcType=VARCHAR},#{isMultipe,jdbcType=VARCHAR},#{parentId,jdbcType=VARCHAR},#{passengerName2,jdbcType=VARCHAR},#{seat,jdbcType=VARCHAR});
+	</insert>
+
+
+	<!-- oracle -->
+	<select id="selectBag" parameterType="com.six.domain.BagInfo"
+		resultType="com.six.domain.BagInfo">
+		select t.* from etcmp_bag_info t
+		<where>
+			<if test="aircraftDate!=null and aircraftDate!=''">
+				to_char(t.aircraft_date, 'yyyy-MM-dd')= '${aircraftDate}'
+			</if>
+			<if test="departureCode!=null and departureCode!=''">
+				and t.DEPARTURE_CODE='${departureCode}'
+			</if>
+			<if test="arriveCode!=null and arriveCode!=''">
+				and t.ARRIVE_CODE='${arriveCode}'
+			</if>
+			<if test="aircraftNum!=null and aircraftNum!=''">
+				and t.AIRCRAFT_NUM='${aircraftNum}'
+			</if>
+		</where>
+	</select>
+
+	<!-- mysql -->
+	<select id="selectBagMysql" parameterType="com.six.domain.BagInfo"
+		resultType="com.six.domain.BagInfo">
+		select t.* from etcmp_bag_info t
+		<where>
+			<if test="aircraftDate!=null and aircraftDate!=''">
+				Date(t.aircraft_date)= '${aircraftDate}'
+			</if>
+			<if test="departureCode!=null and departureCode!=''">
+				and t.DEPARTURE_CODE='${departureCode}'
+			</if>
+			<if test="arriveCode!=null and arriveCode!=''">
+				and t.ARRIVE_CODE='${arriveCode}'
+			</if>
+			<if test="aircraftNum!=null and aircraftNum!=''">
+				and t.AIRCRAFT_NUM='${aircraftNum}'
+			</if>
+		</where>
+	</select>
+
+	<select id="selectDetailBybagid" resultType="com.six.domain.BagDetail">
+		select t.* from
+		etcmp_bag_detail t
+		where
+		t.bag_id='${bagId}'
+	</select>
+
+
+</mapper>

@@ -134,7 +134,7 @@
 	<insert id="saveUser" parameterType="User">
 		insert into user
 		(id,name,address,age)
-		values (#{id},#{name},#{address,},#{age})
+		values (#{id},#{name},#{address},#{age})
 	</insert>
 
 	<insert id="saveScore" parameterType="Score">
@@ -151,8 +151,6 @@
 		on t3.id = t2.id
 	</select>
 
-
-
 	<!-- for循环批量插入 -->
 	<insert id="saveBatch">
 		insert into user
@@ -164,16 +162,14 @@
 		</foreach>
 	</insert>
 
-
-
 	<!-- oracle -->
-	<select id="selectBag" resultType="java.util.HashMap">
+<!-- 	<select id="selectBag" resultType="java.util.HashMap">
 		select * from etcmp_bag_info t
 		where to_char(t.aircraft_date, 'yyyy-MM-dd')= '2016-12-01'
 		and
 		t.DEPARTURE_CODE='PVG'
 		and t.AIRCRAFT_NUM='MU211'
-	</select>
+	</select> -->
 
 	<!-- <update id="updateAuthor" parameterType="org.apache.ibatis.domain.blog.Author"> -->
 	<!-- update Author -->

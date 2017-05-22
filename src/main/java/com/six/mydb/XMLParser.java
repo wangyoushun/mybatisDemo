@@ -127,6 +127,52 @@ public class XMLParser {
 				String resultType = getAttrValue(selectNode, "resultType");
 				NodeList childNodes = selectNode.getChildNodes();
 				String sql = "";
+				
+				for (int j = 0; j < childNodes.getLength(); j++) {
+					Node item = childNodes.item(j);
+					String nodeName = item.getNodeName();
+					String nodeValue = item.getNodeValue();
+					
+					if ("#text".equals(nodeName)) {
+						nodeValue = nodeValue.trim();
+						sql += nodeValue;
+					}
+					
+					if("if".equals(nodeName)){
+						sql+=" <if>"+item.getTextContent()+"<if/>";
+					}
+					
+				}
+				MapStatement mapStatement = new MapStatement();
+				mapStatement.setId(nameSpace+"."+id);
+				mapStatement.setParameterType(parameterType);
+				mapStatement.setResultType(resultType);
+				mapStatement.setSqlStr(parser.parserSql(sql));	
+				mapStatement.setParamKey(parser.parserSqlParam(sql));
+				// 将解析数据放入map中， 判断map中
+				map.put(nameSpace+"."+id, mapStatement);
+			}
+		}
+		config.setSqlMap(map);
+		System.out.println(map);
+	}
+	/**
+	 * 解析mapper文件中insert,update,delete标签
+	 */
+	public void parsesCUD(Node mapper,String nameSpace) throws Exception {
+		NodeList selectNodes = (NodeList) xPath.evaluate("//insert | //update | //delete", mapper,
+				XPathConstants.NODESET);
+		Map<String, MapStatement> map = new HashMap<String, MapStatement>();
+		TokenParser parser = new TokenParser();
+		
+		for (int i = 0; i < selectNodes.getLength(); i++) {
+			Node selectNode = selectNodes.item(i);
+			if (selectNode.getNodeType() == Node.ELEMENT_NODE) {
+				String id = getAttrValue(selectNode, "id");
+				String parameterType = getAttrValue(selectNode, "parameterType");
+				String resultType = getAttrValue(selectNode, "resultType");
+				NodeList childNodes = selectNode.getChildNodes();
+				String sql = "";
 
 				for (int j = 0; j < childNodes.getLength(); j++) {
 					String nodeName = childNodes.item(j).getNodeName();
@@ -149,7 +195,8 @@ public class XMLParser {
 		config.setSqlMap(map);
 		System.out.println(map);
 	}
-
+	
+	
 	public String getAttrValue(Node node, String name) {
 		Node namedItem = node.getAttributes().getNamedItem(name);
 		if (namedItem == null) {

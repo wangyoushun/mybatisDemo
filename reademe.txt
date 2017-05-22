@@ -1,6 +1,23 @@
 
 
 
+1. 传入参数类型转换 -- if逻辑语句改成设配器模式
+
+
+
+
+
+已完成
+
+parameterType  基本类型，map类型，实体类型
+resultType  实体类型，map类型
+
+
+动态sql，list，数组类型
+
+
+
+
 2016年12月10日
 1. mydb mapper xml文件解析
 2. mydb 输入参数处理

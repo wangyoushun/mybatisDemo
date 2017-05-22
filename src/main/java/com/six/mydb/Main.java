@@ -18,6 +18,17 @@ public class Main {
 //		test011();
 //		test02();
 //		test03();
+//		test04();
+		String configPath="mydb-config.xml";
+		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		List<Object> selectList = session.selectList("com.six.domain.User.selectif", null);
+		System.out.println(selectList);
+		session.close();
+		
+		
+	}
+
+	private static void test04() throws Exception, SQLException {
 		String configPath="mydb-config.xml";
 		SqlSession session = new SqlSessionFactory(configPath).opsession();
 		List<Object> selectList = session.selectList("com.six.domain.User.selectResultObj", null);

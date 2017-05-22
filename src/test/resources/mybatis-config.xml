@@ -72,16 +72,17 @@
 				<property name="" value="" />
 			</transactionManager>
 			<dataSource type="UNPOOLED">
-				<property name="driver" value="${driver2}" />
-				<property name="url" value="${url2}" />
-				<property name="username" value="${username2}" />
-				<property name="password" value="${password2}" />
+				<property name="driver" value="${driver3}" />
+				<property name="url" value="${url3}" />
+				<property name="username" value="${username3}" />
+				<property name="password" value="${password3}" />
 			</dataSource>
 		</environment>
 	</environments>
 
 	<mappers>
 		<mapper resource="com/six/mapper/Usert.xml" />
+		<mapper resource="com/six/mapper/etcmp.xml" />
 	</mappers>
 
 </configuration>

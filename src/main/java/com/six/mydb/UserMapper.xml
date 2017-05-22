@@ -35,4 +35,40 @@
 	<select id="selectResultObj" resultType="com.six.mydb.entity.User">
 		select * from user  t
 	</select>
+	
+<!-- ============================================================================== -->	
+	<!-- 动态sql -->
+	<select id="selectif" resultType="com.six.mydb.entity.User">
+		select * from user  t
+		<where>
+		<if test="id!='' and id!=null">
+		 t.id=#{id}
+		</if>
+		</where>
+	</select>
+	
+	
+<!-- =============================================================================== -->		
+	
+	<!-- insert -->
+	<insert id="saveUser" parameterType="com.six.mydb.entity.User">
+		insert into user
+		(id,name,address,age)
+		values (#{id},#{name},#{address,},#{age})
+	</insert>
+	
+	<!-- update -->
+	<update id="updateUser" parameterType="com.six.mydb.entity.User">
+		update user set user.name=#{name}
+		where user.id=#{id}
+	</update>
+	
+	<!-- delete -->
+	<delete id="deleteUser" parameterType="com.six.mydb.entity.User">
+		delete from user 
+		where user.id=#{id}
+	</delete>
+	
+	
+	
 </mapper>

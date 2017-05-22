@@ -15,6 +15,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.six.mydb.exceptions.MydbExeceptions;
+import com.six.mydb.utils.StringHelp;
 
 public class SqlSession {
 
@@ -34,6 +35,8 @@ public class SqlSession {
 		if (mapStatement == null)
 			throw new MydbExeceptions("no sqlid " + sqlId + " in xml");
 
+		//组装sql
+		
 		String sql = mapStatement.getSqlStr();
 		PreparedStatement prepareStatement = connection.prepareStatement(sql);
 		logger.debug("sql: -- " + sql);

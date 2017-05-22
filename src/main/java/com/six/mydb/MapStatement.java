@@ -2,6 +2,8 @@ package com.six.mydb;
 
 import java.util.List;
 
+import org.w3c.dom.Node;
+
 public class MapStatement {
 	private String sqlStr;
 	private String parameterType;
@@ -9,10 +11,18 @@ public class MapStatement {
 	private String id;
 	private String warpSql;
 	private List<String> paramKey;
+	private List<Node> nodeList;
+	
+	
+	
+	public List<Node> getNodeList() {
+		return nodeList;
+	}
 
-	
-	
-	
+	public void setNodeList(List<Node> nodeList) {
+		this.nodeList = nodeList;
+	}
+
 	public List<String> getParamKey() {
 		return paramKey;
 	}
@@ -65,7 +75,8 @@ public class MapStatement {
 	public String toString() {
 		return "MapStatement [sqlStr=" + sqlStr + ", parameterType="
 				+ parameterType + ", resultType=" + resultType + ", id=" + id
-				+ ", warpSql=" + warpSql + "]";
+				+ ", warpSql=" + warpSql + ", paramKey=" + paramKey
+				+ ", nodeList=" + nodeList + "]";
 	}
 
 }
