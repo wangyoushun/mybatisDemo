@@ -63,7 +63,7 @@
 
 	<select id="selectUserHashMap" resultType="java.util.HashMap">
 		select id,
-		name from
+		 age from
 		user where id = #{id}
 	</select>
 
@@ -76,6 +76,13 @@
 		order by
 		${name}
 	</select>
+
+	<select id="selectForMapParam" parameterType="java.util.Map" resultType="com.six.domain.User">
+	 select * from user
+	 where id=#{ids}
+	 and name=#{name}
+	</select>
+
 
 	<select id="selectParam2" resultType="com.six.domain.User">
 		select * from user

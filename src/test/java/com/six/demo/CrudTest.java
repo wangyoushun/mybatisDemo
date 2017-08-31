@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ognl.Ognl;
-
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.ResultContext;
@@ -28,30 +26,28 @@ import com.github.pagehelper.PageHelper;
 import com.six.domain.Score;
 import com.six.domain.User;
 
+import ognl.Ognl;
+
 public class CrudTest {
 
 	private Logger logger = Logger.getLogger(CrudTest.class);
 	SqlSession openSession;
 	SqlSessionFactory sqlSessionFactory;
-
-	
 	
 	@Test
 	public void testPageHelp2() throws Exception {
 		openSession = sqlSessionFactory.openSession();
 		Page<Object> startPage = PageHelper.startPage(1, 4);
 		PageHelper.orderBy("t3.id asc");
-		List<Map> selectList = openSession
-				.selectList("com.six.domain.User.selectUserScore");
-		for(int i=0; i<selectList.size(); i++){
+		List<Map> selectList = openSession.selectList("com.six.domain.User.selectUserScore");
+		for (int i = 0; i < selectList.size(); i++) {
 			System.out.println(selectList.get(i));
 		}
-	
+
 		openSession.close();
 
 	}
-	
-	
+
 	// 传统for循环插入数据时间
 	@Test
 	public void testBathSave() throws Exception {
@@ -81,11 +77,9 @@ public class CrudTest {
 		String resource = "mybatis-config.xml";
 		InputStream inputStream = Resources.getResourceAsStream(resource);
 		SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
-		sqlSessionFactory = sqlSessionFactoryBuilder.build(inputStream,
-				"development_oracle");
+		sqlSessionFactory = sqlSessionFactoryBuilder.build(inputStream, "development_oracle");
 		openSession = sqlSessionFactory.openSession();
-		List<Map> selectList = openSession
-				.selectList("com.six.domain.User.selectBag");
+		List<Map> selectList = openSession.selectList("com.six.domain.User.selectBag");
 		System.out.println(selectList);
 		String s = (String) selectList.get(0).get("BAG_ID");
 		System.out.println(s);
@@ -96,8 +90,7 @@ public class CrudTest {
 	public void testPageHelp() throws Exception {
 		openSession = sqlSessionFactory.openSession();
 		Page<Object> startPage = PageHelper.startPage(1, 4);
-		List<User> selectList = openSession
-				.selectList("com.six.domain.User.selectAllUser");
+		List<User> selectList = openSession.selectList("com.six.domain.User.selectAllUser");
 		System.out.println(selectList);
 		System.out.println(selectList.get(0));
 		openSession.close();
@@ -114,8 +107,7 @@ public class CrudTest {
 		RowBounds rowBounds = new RowBounds(1, 4);
 		User user = new User();
 		user.setName("叶小名");
-		List<User> selectList = openSession.selectList(
-				"com.six.domain.User.selectAllUser", user, rowBounds);
+		List<User> selectList = openSession.selectList("com.six.domain.User.selectAllUser", user, rowBounds);
 		System.out.println(selectList);
 		openSession.close();
 
@@ -130,8 +122,7 @@ public class CrudTest {
 		user.setName("叶小名");
 		map.put("user", user);
 		map.put("order", " id desc ");
-		List<User> selectList = openSession.selectList(
-				"com.six.domain.User.selectParam2", map);
+		List<User> selectList = openSession.selectList("com.six.domain.User.selectParam2", map);
 		System.out.println(selectList);
 		openSession.close();
 	}
@@ -142,8 +133,7 @@ public class CrudTest {
 		openSession = sqlSessionFactory.openSession();
 		User user = new User();
 		user.setName(" id desc");
-		List<User> selectList = openSession.selectList(
-				"com.six.domain.User.selectParam", user);
+		List<User> selectList = openSession.selectList("com.six.domain.User.selectParam", user);
 		System.out.println(selectList);
 		openSession.close();
 	}
@@ -165,8 +155,22 @@ public class CrudTest {
 		map.put("name", "叶小名");
 		map.put("ids", ids);
 
-		List<User> selectList = openSession.selectList(
-				"com.six.domain.User.selectFor", map);
+		List<User> selectList = openSession.selectList("com.six.domain.User.selectFor", map);
+		System.out.println(selectList);
+
+		openSession.close();
+	}
+	
+	// for more param 02
+	@Test
+	public void testMap() throws Exception {
+		openSession = sqlSessionFactory.openSession();
+		int ids= 4;
+		Map<String, Object> map = new HashMap<>();
+		map.put("name", "叶小名");
+		map.put("ids", ids);
+
+		List<User> selectList = openSession.selectList("com.six.domain.User.selectForMapParam", map);
 		System.out.println(selectList);
 
 		openSession.close();
@@ -177,18 +181,17 @@ public class CrudTest {
 	public void testForArray() throws Exception {
 		openSession = sqlSessionFactory.openSession();
 		Integer[] ids = new Integer[] { 1, 4 };
-		List<User> selectList = openSession.selectList(
-				"com.six.domain.User.selectForArray", ids);
+		List<User> selectList = openSession.selectList("com.six.domain.User.selectForArray", ids);
 		System.out.println(selectList);
 		openSession.close();
 	}
 
-	// for list test 分页  pageHelper
+	// for list test 分页 pageHelper
 	@Test
 	public void testForList2() throws Exception {
 		openSession = sqlSessionFactory.openSession();
-		Map<String,Object> map = new HashMap<String,Object>();
-		
+		Map<String, Object> map = new HashMap<String, Object>();
+
 		List<User> list2 = new ArrayList<User>();
 		User user1 = new User();
 		user1.setId(2307);
@@ -198,33 +201,32 @@ public class CrudTest {
 		user3.setId(2309);
 		User user4 = new User();
 		user4.setId(2310);
-		
+
 		list2.add(user1);
 		list2.add(user2);
 		list2.add(user3);
 		list2.add(user4);
 
 		map.put("list", list2);
-		PageHelper.startPage(1,2);
-		List<User> selectList = openSession.selectList(
-				"com.six.domain.User.selectForListPage", map);
+		PageHelper.startPage(1, 2);
+		List<User> selectList = openSession.selectList("com.six.domain.User.selectForListPage", map);
 		System.out.println(selectList);
-		
+
 		openSession.close();
 	}
-	
-	//自定义分页插件
+
+	// 自定义分页插件
 	// for list
 	@Test
 	public void testForList() throws Exception {
 		openSession = sqlSessionFactory.openSession();
-		
+
 		Pager page = new Pager();
 		page.setCurrentPage(1);
 		page.setPageSize(2);
-		Map<String,Object> map = new HashMap<String,Object>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("page", page);
-		
+
 		List<User> list2 = new ArrayList<User>();
 		User user1 = new User();
 		user1.setId(2307);
@@ -234,15 +236,14 @@ public class CrudTest {
 		user3.setId(2309);
 		User user4 = new User();
 		user4.setId(2310);
-		
+
 		list2.add(user1);
 		list2.add(user2);
 		list2.add(user3);
 		list2.add(user4);
 
 		map.put("list", list2);
-		List<User> selectList = openSession.selectList(
-				"com.six.domain.User.selectForListPage", map);
+		List<User> selectList = openSession.selectList("com.six.domain.User.selectForListPage", map);
 		System.out.println(selectList);
 		page.setPageSize(selectList.size());
 		System.out.println(page);
@@ -265,14 +266,13 @@ public class CrudTest {
 		Integer id = 1;
 		User user = new User();
 		user.setId(id);
-		User u1 = openSession.selectOne("com.six.domain.User.selectUserById",
-				user);
+		User u1 = openSession.selectOne("com.six.domain.User.selectUserById", user);
 		return u1;
 	}
 
 	@Test
 	public void testInsert2() throws Exception {
-		openSession = sqlSessionFactory.openSession(ExecutorType.BATCH,false);
+		openSession = sqlSessionFactory.openSession(ExecutorType.BATCH, false);
 		for (int i = 0; i < 100; i++) {
 			User user = new User();
 			user.setName("叶小民" + i);
@@ -294,7 +294,7 @@ public class CrudTest {
 		openSession.commit();
 		openSession.close();
 	}
-	
+
 	// insert
 	@Test
 	public void testInsert3() throws Exception {
@@ -315,11 +315,12 @@ public class CrudTest {
 		Integer id = 1;
 		User user = new User();
 		user.setId(id);
-		List<User> selectList = openSession.selectList(
-				"com.six.domain.User.selectUserHashMap", user);
-		Map user2 = (Map) selectList.get(0);
+		List<Map<String, Integer>> selectList = openSession.selectList("com.six.domain.User.selectUserHashMap", user);
+		Map<String, Integer> user2 =  (Map<String, Integer>) selectList.get(0);
 		System.out.println(user2);
-		System.out.println(selectList);
+		Integer idstr = user2.get("id");
+		System.out.println(idstr);
+
 		openSession.close();
 	}
 
@@ -331,8 +332,7 @@ public class CrudTest {
 		Integer id = 1;
 		User user = new User();
 		user.setId(id);
-		List<User> selectList = openSession.selectList(
-				"com.six.domain.User.selectAllUserResultMap", user);
+		List<User> selectList = openSession.selectList("com.six.domain.User.selectAllUserResultMap", user);
 		System.out.println(selectList);
 		openSession.close();
 
@@ -346,8 +346,7 @@ public class CrudTest {
 		user.setId(id);
 		// Map<String,Integer> map = new HashMap<String,Integer>();
 		// map.put("id", id);
-		List<User> selectList = openSession.selectList(
-				"com.six.domain.User.selectUserById", user);
+		List<User> selectList = openSession.selectList("com.six.domain.User.selectUserById", user);
 		System.out.println(selectList);
 	}
 
@@ -361,8 +360,7 @@ public class CrudTest {
 			}
 		}
 		MyResultHandler myResultHandler = new MyResultHandler();
-		openSession
-				.select("com.six.domain.User.selectAllUser", myResultHandler);
+		openSession.select("com.six.domain.User.selectAllUser", myResultHandler);
 	}
 
 	@Test
@@ -372,15 +370,14 @@ public class CrudTest {
 		Pager page = new Pager();
 		page.setCurrentPage(1);
 		page.setPageSize(4);
-		Map<String,Object> map = new HashMap<String,Object>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("page", page);
-		List<User> selectList = openSession
-				.selectList("com.six.domain.User.selectAllUser",map);
+		List<User> selectList = openSession.selectList("com.six.domain.User.selectAllUser", map);
 		System.out.println(selectList);
 		System.out.println(map.get("page"));
 		openSession.close();
 	}
-	
+
 	// init
 	@Before
 	public void init() throws IOException {
