@@ -23,6 +23,7 @@ public class TimerUtil {
             Class<?> c = Class.forName(className);
             Object obj = c.newInstance();
             Method[] methods = c.getDeclaredMethods();
+            System.out.println(methods.toString());
             for (Method m : methods) {
                 // 判断该方法是否包含Timer注解
                 if (m.isAnnotationPresent(Timer.class)) {

@@ -1,7 +1,5 @@
 package com.six.demo;
 
-import static org.junit.Assert.*;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -33,7 +31,7 @@ public class CrudTest {
 	private Logger logger = Logger.getLogger(CrudTest.class);
 	SqlSession openSession;
 	SqlSessionFactory sqlSessionFactory;
-	
+
 	@Test
 	public void testPageHelp2() throws Exception {
 		openSession = sqlSessionFactory.openSession();
@@ -160,12 +158,12 @@ public class CrudTest {
 
 		openSession.close();
 	}
-	
+
 	// for more param 02
 	@Test
 	public void testMap() throws Exception {
 		openSession = sqlSessionFactory.openSession();
-		int ids= 4;
+		int ids = 4;
 		Map<String, Object> map = new HashMap<>();
 		map.put("name", "叶小名");
 		map.put("ids", ids);
@@ -316,7 +314,7 @@ public class CrudTest {
 		User user = new User();
 		user.setId(id);
 		List<Map<String, Integer>> selectList = openSession.selectList("com.six.domain.User.selectUserHashMap", user);
-		Map<String, Integer> user2 =  (Map<String, Integer>) selectList.get(0);
+		Map<String, Integer> user2 = (Map<String, Integer>) selectList.get(0);
 		System.out.println(user2);
 		Integer idstr = user2.get("id");
 		System.out.println(idstr);
@@ -395,6 +393,21 @@ public class CrudTest {
 			openSession.close();
 			logger.debug("session close-------");
 		}
+	}
+
+	@Test
+	@Timer
+	public void testcostt() throws Exception {
+		System.out.println("123123");
+		// Thread.sleep(1000*5);
+		System.out.println("sdff");
+	}
+
+	@Timer
+	public void testcostt2(int a) throws Exception {
+		System.out.println("2222");
+		// Thread.sleep(1000*5);
+		System.out.println("sdff");
 	}
 
 	// 测试方法的执行时间
