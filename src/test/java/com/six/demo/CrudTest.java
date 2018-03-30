@@ -1,7 +1,5 @@
 package com.six.demo;
 
-import static org.junit.Assert.*;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -37,7 +35,7 @@ public class CrudTest {
 	
 	
 	
-	
+
 	@Test
 	public void testUPdate() throws Exception {
 		openSession = sqlSessionFactory.openSession();
@@ -426,6 +424,21 @@ public class CrudTest {
 			openSession.close();
 			logger.debug("session close-------");
 		}
+	}
+
+	@Test
+	@Timer
+	public void testcostt() throws Exception {
+		System.out.println("123123");
+		// Thread.sleep(1000*5);
+		System.out.println("sdff");
+	}
+
+	@Timer
+	public void testcostt2(int a) throws Exception {
+		System.out.println("2222");
+		// Thread.sleep(1000*5);
+		System.out.println("sdff");
 	}
 
 	// 测试方法的执行时间
