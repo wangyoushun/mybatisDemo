@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -496,9 +497,12 @@ public class XmlParserTest {
 
 	@Test
 	public void testName() throws Exception {
-		InputStream resourceAsStream = getClass().getClassLoader()
-				.getResourceAsStream("com/six/mydb/UserMapper.xml");
-		System.out.println(resourceAsStream);
+//		InputStream resourceAsStream = getClass().getClassLoader()
+//				.getResourceAsStream("com/six/mydb/UserMapper.xml");
+//		System.out.println(resourceAsStream);
+		
+		URL resource = getClass().getClassLoader().getResource("com/six/mydb/");
+		System.out.println(resource);
 	}
 
 	public Config getConfig() {

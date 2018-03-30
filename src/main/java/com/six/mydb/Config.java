@@ -3,20 +3,18 @@ package com.six.mydb;
 import java.util.Map;
 import java.util.Properties;
 
+
 public class Config {
 	private Properties setProperties;
 	private Map<String, String> setMap;
 	private Environment environment;
-	private Map<String, MapStatement> sqlMap;
+	private Map<String, SqlConfig> sqlMap;
 
-	
-
-
-	public Map<String, MapStatement> getSqlMap() {
+	public Map<String, SqlConfig> getSqlMap() {
 		return sqlMap;
 	}
 
-	public void setSqlMap(Map<String, MapStatement> sqlMap) {
+	public void setSqlMap(Map<String, SqlConfig> sqlMap) {
 		this.sqlMap = sqlMap;
 	}
 
@@ -43,6 +41,5 @@ public class Config {
 	public void setSetProperties(Properties setProperties) {
 		this.setProperties = setProperties;
 	}
-
 
 }

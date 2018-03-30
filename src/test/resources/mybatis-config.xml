@@ -45,7 +45,7 @@
 		<!-- <plugin interceptor="com.github.pagehelper.PageHelper"></plugin> -->
 		<!-- <plugin interceptor="com.six.demo.TimePlugin"></plugin> -->
 		<!-- sql语句性能插件 -->
-		<!-- <plugin interceptor="com.six.demo.PerformanceInterceptor"></plugin> -->
+		<plugin interceptor="com.six.demo.PerformanceInterceptor"></plugin>
 
 		<!-- 自定义分页插件 -->
 		 <plugin interceptor="com.six.demo.PagePlugin"></plugin>
