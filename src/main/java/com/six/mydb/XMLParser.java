@@ -132,16 +132,16 @@ public class XMLParser {
 					Node item = childNodes.item(j);
 					String nodeName = item.getNodeName();
 					String nodeValue = item.getNodeValue();
-					
-					if ("#text".equals(nodeName)) {
-						nodeValue = nodeValue.trim();
-						sql += nodeValue;
-					}
-					
-					if("if".equals(nodeName)){
-						sql+=" <if>"+item.getTextContent()+"<if/>";
-					}
-					
+					sql += nodeValue;
+//					if ("#text".equals(nodeName)) {
+//						nodeValue = nodeValue.trim();
+//						sql += nodeValue;
+//					}
+//					
+//					if("if".equals(nodeName)){
+//						sql+=" <if>"+item.getTextContent()+"<if/>";
+//					}
+//					
 				}
 				MapStatement mapStatement = new MapStatement();
 				mapStatement.setId(nameSpace+"."+id);

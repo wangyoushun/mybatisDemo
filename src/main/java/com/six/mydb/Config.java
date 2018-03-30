@@ -9,9 +9,6 @@ public class Config {
 	private Environment environment;
 	private Map<String, MapStatement> sqlMap;
 
-	
-
-
 	public Map<String, MapStatement> getSqlMap() {
 		return sqlMap;
 	}
@@ -43,6 +40,5 @@ public class Config {
 	public void setSetProperties(Properties setProperties) {
 		this.setProperties = setProperties;
 	}
-
 
 }

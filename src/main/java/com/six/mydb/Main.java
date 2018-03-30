@@ -1,7 +1,10 @@
 package com.six.mydb;
 
 
+import static org.junit.Assert.*;
+
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,16 +17,33 @@ import com.six.mydb.entity.User;
 
 public class Main {
 
+	@Test
+	public void testParamList() throws Exception {
+		String configPath="mydb-config.xml";
+		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		System.out.println("=");
+		List<String> arrayList = new ArrayList<>();
+		arrayList.add("aaa");
+		List<Object> selectList = session.selectList("com.six.domain.User.selectUserByList", arrayList);
+		System.out.println(selectList);
+	}
+	
+	
 	public static void main(String[] args) throws Exception {
 //		test011();
 //		test02();
 //		test03();
 //		test04();
-		String configPath="mydb-config.xml";
-		SqlSession session = new SqlSessionFactory(configPath).opsession();
-		List<Object> selectList = session.selectList("com.six.domain.User.selectif", null);
-		System.out.println(selectList);
-		session.close();
+//		String configPath="mydb-config.xml";
+//		SqlSession session = new SqlSessionFactory(configPath).opsession();
+//		Map<String,Object> map = new HashMap<String,Object>();
+//		map.put("id", 1);
+//		
+//		List<Object> selectList = session.selectList("com.six.domain.User.selectif", map);
+//		System.out.println(selectList);
+//		session.close();
+		
+		
 		
 		
 	}

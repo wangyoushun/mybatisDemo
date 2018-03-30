@@ -25,12 +25,12 @@ public class OgnlHelper {
 	public void testName() throws Exception {
 		User user = new User();
 		user.setId(123);
-		user.setName("234");
+		user.setName("");
 		String name="345";
-		Object node = Ognl.parseExpression("#{name}");
+		Object node = Ognl.parseExpression("#{name==''}");
 		System.out.println(node);
-//		Object value = Ognl.getValue(node);
-//		System.out.println(value);
+		Object value = Ognl.getValue(node,user);
+		System.out.println(value);
 	}
 }
 

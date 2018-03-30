@@ -33,7 +33,37 @@ public class CrudTest {
 	private Logger logger = Logger.getLogger(CrudTest.class);
 	SqlSession openSession;
 	SqlSessionFactory sqlSessionFactory;
+
 	
+	
+	
+	
+	@Test
+	public void testUPdate() throws Exception {
+		openSession = sqlSessionFactory.openSession();
+		openSession.update("com.six.domain.User.updateUser", 1);
+		openSession.close();
+	}
+	
+	/**
+	 * 测试存储过程返回值
+	 * @throws Exception
+	 */
+	@Test
+	public void testPro() throws Exception {
+		Map<String, Integer> parameterMap = new HashMap<String, Integer>();
+		parameterMap.put("sexid", 1);
+		parameterMap.put("usercount", -1);
+		openSession = sqlSessionFactory.openSession();
+		for(int i=0; i<10; i++){
+			parameterMap.put("sexid", i);
+			openSession.selectOne("com.six.domain.User.selectUserPro", parameterMap);
+			Integer integer = parameterMap.get("usercount");
+			System.out.println(integer);
+		}
+		
+	}
+
 	@Test
 	public void testPageHelp2() throws Exception {
 		openSession = sqlSessionFactory.openSession();
@@ -119,7 +149,7 @@ public class CrudTest {
 		openSession = sqlSessionFactory.openSession();
 		Map<String, Object> map = new HashMap<String, Object>();
 		User user = new User();
-		user.setName("叶小名");
+		user.setName("1");
 		map.put("user", user);
 		map.put("order", " id desc ");
 		List<User> selectList = openSession.selectList("com.six.domain.User.selectParam2", map);
@@ -160,15 +190,15 @@ public class CrudTest {
 
 		openSession.close();
 	}
-	
+
 	// for more param 02
 	@Test
 	public void testMap() throws Exception {
 		openSession = sqlSessionFactory.openSession();
-		int ids= 4;
+		int ids = 4;
 		Map<String, Object> map = new HashMap<>();
 		map.put("name", "叶小名");
-		map.put("ids", ids);
+		map.put("ids", "4");
 
 		List<User> selectList = openSession.selectList("com.six.domain.User.selectForMapParam", map);
 		System.out.println(selectList);
@@ -288,6 +318,7 @@ public class CrudTest {
 		openSession = sqlSessionFactory.openSession();
 		User user = new User();
 		// user.setAge(23);
+		user.setId(1);
 		user.setName("叶小名2");
 		int insert = openSession.insert("com.six.domain.User.saveUser", user);
 		System.out.println(insert);
@@ -316,7 +347,7 @@ public class CrudTest {
 		User user = new User();
 		user.setId(id);
 		List<Map<String, Integer>> selectList = openSession.selectList("com.six.domain.User.selectUserHashMap", user);
-		Map<String, Integer> user2 =  (Map<String, Integer>) selectList.get(0);
+		Map<String, Integer> user2 = (Map<String, Integer>) selectList.get(0);
 		System.out.println(user2);
 		Integer idstr = user2.get("id");
 		System.out.println(idstr);

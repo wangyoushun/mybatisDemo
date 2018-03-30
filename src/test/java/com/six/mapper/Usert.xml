@@ -7,8 +7,6 @@
 <mapper namespace="com.six.domain.User">
 
 	<!-- 已结配置驼峰匹配 -->
-	<resultMap id="selectUser" type="User">
-	</resultMap>
 
 	<!-- <resultMap id="selectAuthor" type="org.apache.ibatis.domain.blog.Author"> -->
 	<!-- <id column="id" property="id" /> -->
@@ -50,6 +48,29 @@
 	<!-- </constructor> -->
 	<!-- </resultMap> -->
 
+<!--  <parameterMap type="java.util.Map" id="getUserCountMap"> -->
+<!--         <parameter property="num" mode="OUT" jdbcType="INTEGER"/> -->
+<!--     </parameterMap> -->
+
+<!--   <select id="selectUserPro" parameterMap="getUserCountMap" statementType="CALLABLE"> -->
+<!--         CALL getuser2(?) -->
+<!--     </select> -->
+
+  <select id="selectUserPro" parameterMap="getUserCountMap" statementType="CALLABLE">
+        CALL ges_user_count(?,?)
+    </select>
+    
+
+    <parameterMap type="java.util.Map" id="getUserCountMap">
+        <parameter property="sexid" mode="IN" jdbcType="INTEGER"/>
+        <parameter property="usercount" mode="OUT" jdbcType="INTEGER"/>
+    </parameterMap>
+    
+
+	<select id="selectAllUserAndName" resultType="com.six.domain.User">
+		select * from user LEFT JOIN name on `user`.id=`name`.uid
+	</select>
+
 	<select id="selectAllUser" resultType="com.six.domain.User">
 		select * from user
 	</select>
@@ -67,9 +88,6 @@
 		user where id = #{id}
 	</select>
 
-	<select id="selectAllUserResultMap" resultMap="selectUser">
-		select * from user
-	</select>
 
 	<select id="selectParam" resultType="com.six.domain.User">
 		select * from user
@@ -79,15 +97,19 @@
 
 	<select id="selectForMapParam" parameterType="java.util.Map" resultType="com.six.domain.User">
 	 select * from user
-	 where id=#{ids}
-	 and name=#{name}
+	 where name=#{name} 
+	 <if test="ids != '4'">
+	 and id=#{ids}
+	 </if>
+	 
 	</select>
 
 
 	<select id="selectParam2" resultType="com.six.domain.User">
 		select * from user
 		<where>
-			<if test="user.name != null">name=#{user.name}</if>
+<!-- 			<if test="user.name != null and user.name!=''">name=#{user.name}</if> -->
+			<if test="user.name != '1'.toString()">name=#{user.name}</if>
 		</where>
 		order by ${order}
 	</select>
@@ -168,6 +190,13 @@
 			(#{item.id},#{item.name},#{item.address,},#{item.age})
 		</foreach>
 	</insert>
+
+	<update id="updateUser">
+	update user set id=#{id} 
+	where <if test="id=2">
+	id>0
+	</if>
+	</update>
 
 	<!-- oracle -->
 <!-- 	<select id="selectBag" resultType="java.util.HashMap">

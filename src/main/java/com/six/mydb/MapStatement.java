@@ -12,9 +12,7 @@ public class MapStatement {
 	private String warpSql;
 	private List<String> paramKey;
 	private List<Node> nodeList;
-	
-	
-	
+
 	public List<Node> getNodeList() {
 		return nodeList;
 	}
@@ -73,10 +71,8 @@ public class MapStatement {
 
 	@Override
 	public String toString() {
-		return "MapStatement [sqlStr=" + sqlStr + ", parameterType="
-				+ parameterType + ", resultType=" + resultType + ", id=" + id
-				+ ", warpSql=" + warpSql + ", paramKey=" + paramKey
-				+ ", nodeList=" + nodeList + "]";
+		return "MapStatement [sqlStr=" + sqlStr + ", parameterType=" + parameterType + ", resultType=" + resultType
+				+ ", id=" + id + ", warpSql=" + warpSql + ", paramKey=" + paramKey + ", nodeList=" + nodeList + "]";
 	}
 
 }

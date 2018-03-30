@@ -1,74 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE configuration SYSTEM "mydb-mapper.dtd">
 <mapper namespace="com.six.domain.User">
-	
-	<select id="11">
-		select * from user
-		<if test="">
-		222</if>
-		<where>
-		
-		222333</where>
+
+
+<select id="selectUserByList" resultType="com.six.domain.User">
+	<![CDATA[
+		select * from user t
+		where
+		t.id
+		<#if name?exists>a</#if>
+			]]>
 	</select>
-	
-	<select id="selectAllUser"  resultType="com.six.domain.User">
-		select * from user  t
-		where t.id=${id}
+
+	<select id="selectAllUser" resultType="com.six.domain.User">
+		select * from user t
+		where
+		t.id=${id}
 	</select>
-	
-	<select id="selectUserByObj" parameterType="com.six.mydb.entity.User" resultType="com.six.domain.User">
-		select * from user  t
-		where t.id=${id}
-		and t.name=${name}
-	</select>
-	
-	<select id="selectUserByMap" parameterType="java.util.Map" resultType="com.six.domain.User">
-		select * from user  t
+
+	<select id="selectUserByObj" parameterType="com.six.mydb.entity.User"
+		resultType="com.six.domain.User">
+		select * from user t
 		where t.id=${id}
 		and t.name=${name}
 	</select>
-	
+
+	<select id="selectUserByMap" parameterType="java.util.Map"
+		resultType="com.six.domain.User">
+		select * from user t
+		where t.id=${id}
+		and t.name=${name}
+	</select>
+
 	<select id="selectByNoparam">
-		select * from user  t
+		select * from user t
 	</select>
-	
+
 	<select id="selectResultObj" resultType="com.six.mydb.entity.User">
-		select * from user  t
+		select * from user t
 	</select>
-	
-<!-- ============================================================================== -->	
+
+	<!-- ============================================================================== -->
 	<!-- 动态sql -->
 	<select id="selectif" resultType="com.six.mydb.entity.User">
-		select * from user  t
+		select * from user t
 		<where>
-		<if test="id!='' and id!=null">
-		 t.id=#{id}
-		</if>
+			<if test="id!='' and id!=null">
+				t.id=#{id}
+			</if>
+			<if test="name!='' ">
+				and t.name=#{id}
+			</if>
 		</where>
 	</select>
-	
-	
-<!-- =============================================================================== -->		
-	
+
+
+	<!-- =============================================================================== -->
+
 	<!-- insert -->
 	<insert id="saveUser" parameterType="com.six.mydb.entity.User">
 		insert into user
 		(id,name,address,age)
 		values (#{id},#{name},#{address,},#{age})
 	</insert>
-	
+
 	<!-- update -->
 	<update id="updateUser" parameterType="com.six.mydb.entity.User">
-		update user set user.name=#{name}
+		update user set
+		user.name=#{name}
 		where user.id=#{id}
 	</update>
-	
+
 	<!-- delete -->
 	<delete id="deleteUser" parameterType="com.six.mydb.entity.User">
-		delete from user 
+		delete from user
 		where user.id=#{id}
 	</delete>
-	
-	
-	
+
+
+
 </mapper>

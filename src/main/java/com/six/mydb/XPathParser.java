@@ -8,7 +8,7 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import com.six.mydb.exceptions.MydbExeceptions;
+import com.six.mydb.exceptions.MyDBExeceptions;
 
 public class XPathParser {
 
@@ -20,7 +20,7 @@ public class XPathParser {
 		try {
 			node = (Node) xPath.evaluate(expression, root, XPathConstants.NODE);
 		} catch (XPathExpressionException e) {
-			throw new MydbExeceptions("evalNode " + expression);
+			throw new MyDBExeceptions("evalNode " + expression);
 		}
 		return node;
 	}
