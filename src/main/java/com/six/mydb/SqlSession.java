@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.six.mydb.exceptions.MyDBExeceptions;
 import com.six.mydb.utils.DBresultKit;
+import com.six.mydb.utils.FreeMarkerKit;
 import com.six.mydb.utils.StringHelp;
 
 public class SqlSession {
@@ -31,17 +31,17 @@ public class SqlSession {
 	@SuppressWarnings("unchecked")
 	public <T> List<T> selectList(String sqlID, Object param) throws Exception {
 
-		MapStatement mapStatement = config.getSqlMap().get(sqlID);
+		SqlConfig mapStatement = config.getSqlMap().get(sqlID);
 		if (mapStatement == null)
-			throw new MyDBExeceptions("no sqlid " + sqlID + " in xml");
+			throw new MyDBExeceptions("no sqlid " + sqlID + " in sql");
+
+		if (!mapStatement.getType().equals("select")) {
+			throw new MyDBExeceptions("sqlid " + sqlID + " not query");
+		}
 
 		// 组装sql
-		String sql = mapStatement.getSqlStr();
+		String sql = getSql(sqlID, param, mapStatement);
 		PreparedStatement prepareStatement = connection.prepareStatement(sql);
-		logger.debug("sql: -- " + sql);
-
-		wrapCollection(sqlID, param, mapStatement, prepareStatement);
-
 		ResultSet rs = prepareStatement.executeQuery();
 
 		String resultType = mapStatement.getResultType();
@@ -52,111 +52,49 @@ public class SqlSession {
 		}
 	}
 
-	private void wrapCollection(String sqlID, Object param, MapStatement mapStatement,
-			PreparedStatement prepareStatement)
+	private String getSql(String sqlID, Object param, SqlConfig mapStatement)
 			throws SQLException, ClassNotFoundException, IllegalAccessException, InvocationTargetException {
+		String sql = mapStatement.getSql();
+		Map<String, Object> wrapCollection = wrapCollection(sqlID, param, mapStatement);
+		sql = builderSql(sql, wrapCollection);
+		logger.debug("sql: -- " + sql);
+		return sql;
+	}
+
+	private String builderSql(String sql, Map<String, Object> wrapCollection) {
+		return FreeMarkerKit.parseSql(sql, wrapCollection);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> wrapCollection(String sqlID, Object param, SqlConfig sqlConfig)
+			throws SQLException, ClassNotFoundException, IllegalAccessException, InvocationTargetException {
+		Map<String, Object> map = new HashMap<String, Object>();
 		if (param == null) {
 
 		} else {
-			
-			
-			
-			
-			
-			
-			
-			setStatementParam(sqlID,param,mapStatement,prepareStatement);
-			/*
-			HashMap<String,Object> hashMap = new HashMap<String, Object>();
-			if(param instanceof List){
-				hashMap.put("list", param);
-			}else if(param.getClass().isArray()){
-				hashMap.put("array", param);
-			}else if(param instanceof Map) {
-				
-			}else{
-				String parameterType = mapStatement.getParameterType();
-				Class<?> clazz = Class.forName(parameterType);
+			if (param instanceof Map) {
+				map = (Map<String, Object>) param;
+			} else {
+				Class<?> clazz = param.getClass();
 				Method[] methods = clazz.getMethods();
-				Map<String, Method> map = new HashMap<String, Method>();
 				for (Method method : methods) {
 					String name = method.getName();
 					if (name != null && name.length() > 3 && "get".equals(name.substring(0, 3))
 							&& !"getClass".equals(name)) {
 						String beanField = StringHelp.getBeanField(name);
-						map.put(beanField, method);
+						map.put(beanField, method.invoke(param));
 					}
 				}
-				
-
-				List<String> paramKey = mapStatement.getParamKey();
-				Method _method = null;
-				for (int i = 0; i < paramKey.size(); i++) {
-					_method = map.get(paramKey.get(i));
-					if (_method == null)
-						throw new MyDBExeceptions(sqlID + " no param " + paramKey.get(i));
-
-					Object invoke = _method.invoke(param);
-					prepareStatement.setObject(i + 1, invoke);
-				}
-
-				
-			}
-			
-			//
-			
-			
-		*/}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void setStatementParam(String sqlID, Object param, MapStatement mapStatement,
-			PreparedStatement prepareStatement)
-			throws SQLException, ClassNotFoundException, IllegalAccessException, InvocationTargetException {
-		String parameterType = mapStatement.getParameterType();
-		if (parameterType == null) {
-			prepareStatement.setObject(1, param);
-		} else if ("java.util.Map".equals(parameterType)) {
-			List<String> paramKey = mapStatement.getParamKey();
-			Map<String, Object> map = (Map<String, Object>) param;
-			for (int i = 0; i < paramKey.size(); i++) {
-				Object object = map.get(paramKey.get(i));
-				if (object == null)
-					throw new MyDBExeceptions(sqlID + " no param " + paramKey.get(i));
-
-				prepareStatement.setObject(i + 1, object);
-			}
-		} else {
-			Class<?> clazz = Class.forName(parameterType);
-			Method[] methods = clazz.getMethods();
-			Map<String, Method> map = new HashMap<String, Method>();
-			for (Method method : methods) {
-				String name = method.getName();
-				if (name != null && name.length() > 3 && "get".equals(name.substring(0, 3))
-						&& !"getClass".equals(name)) {
-					String beanField = StringHelp.getBeanField(name);
-					map.put(beanField, method);
-				}
-			}
-
-			List<String> paramKey = mapStatement.getParamKey();
-			Method _method = null;
-			for (int i = 0; i < paramKey.size(); i++) {
-				_method = map.get(paramKey.get(i));
-				if (_method == null)
-					throw new MyDBExeceptions(sqlID + " no param " + paramKey.get(i));
-
-				Object invoke = _method.invoke(param);
-				prepareStatement.setObject(i + 1, invoke);
 			}
 
 		}
+		return map;
 	}
 
 	public <T> List<T> selectList(String sqlID) throws Exception {
 		return selectList(sqlID, null);
 	}
-	
+
 	public <T> T selectOne(String sqlID) throws Exception {
 		return selectOne(sqlID, null);
 	}
@@ -172,11 +110,25 @@ public class SqlSession {
 			return null;
 		}
 	}
-	
-//	public int insert(String sqlID, Object parameter){
-//		
-//		
-//	}
+
+	public int insert(String sqlID, Object param) throws Exception {
+		SqlConfig mapStatement = config.getSqlMap().get(sqlID);
+		if (mapStatement == null)
+			throw new MyDBExeceptions("no sqlid " + sqlID + " in sql");
+
+		if (!mapStatement.getType().equals("insert")) {
+			throw new MyDBExeceptions("sqlid " + sqlID + " not insert");
+		}
+
+		// 组装sql
+		String sql = getSql(sqlID, param, mapStatement);
+		PreparedStatement prepareStatement = connection.prepareStatement(sql);
+		prepareStatement.executeUpdate();
+
+		
+		
+		return 0;
+	}
 
 	public void close() throws SQLException {
 		connection.close();

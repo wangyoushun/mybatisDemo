@@ -2,12 +2,12 @@
 <!DOCTYPE configuration SYSTEM "mydb-config.dtd">
 <configuration>
 	<properties resource="datasource.properties">
-		<property name="test" value="test123"/>
+		<property name="test" value="test123" />
 	</properties>
 	<settings>
-		<setting name="mapUnderscoreToCamelCase" value="true"/>
+		<setting name="mapUnderscoreToCamelCase" value="true" />
 	</settings>
-	
+
 	<environments>
 		<environment id="development">
 			<transactionManager autoCmit="false"></transactionManager>
@@ -19,8 +19,8 @@
 			</dataSource>
 		</environment>
 	</environments>
-	
+
 	<mappers>
-		<mapper resource="com/six/mydb/UserMapper.xml"/>
+		<mapper resource="sql/User.sql" />
 	</mappers>
 </configuration>

@@ -7,7 +7,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import org.junit.Test;
+
+import com.six.config.SqlConfig;
 
 import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Configuration;
@@ -22,40 +25,62 @@ public class FreemakerTest {
 		// File file = new File("User.sql");
 		// System.out.println(file.getAbsolutePath());
 
-		String resources = "User.sql";
+		String resources = "sql/User.sql";
 		// InputStream resourceAsStream =
 		// Resources.getResourceAsStream(resources );
-		String filePath = Thread.currentThread().getContextClassLoader()
-				.getResource(resources).getFile();
+		String filePath = Thread.currentThread().getContextClassLoader().getResource(resources).getFile();
 		List<String> lines = FileTool.lines(new File(filePath));
 
 		ArrayList<String> sqlNameList = new ArrayList<String>();
+		ArrayList<SqlConfig> sqlConfigList = new ArrayList<SqlConfig>();
 		ArrayList<Integer> indexList = new ArrayList<Integer>();
 
-		//
-		String curName = "";
-
+		SqlConfig sqlConfig = null;
 		for (int i = 0; i < lines.size(); i++) {
 			String string = lines.get(i);
 			if (string.contains("--start")) {
 				String[] split = string.split(":");
 				if (split.length > 1) {
-					String string2 = split[2];
-					curName = string2.trim();
+					sqlConfig = new SqlConfig();
+					String type = split[1];
+
+					// TODO: 参数校验
+					sqlConfig.setType(type);
+					String[] split2 = split[2].trim().split(";");
+					String id = split2[0];
+					sqlConfig.setId(id);
+
+					for (String string2 : split2) {
+						String trim = string2.trim();
+						if (!"".equals(trim)) {
+							if (trim.startsWith("paramType=")) {
+								System.out.println("1" + trim.substring("paramType=".length()));
+								sqlConfig.setParamType(trim.substring("paramType=".length()));
+							} else if (trim.startsWith("resultType=")) {
+								sqlConfig.setResultType(trim.substring("resultType=".length()));
+								System.out.println("2" + trim.substring("resultType=".length()));
+							}
+						}
+					}
 					indexList.add(i + 1);
 				}
+				// System.out.println(string);
 			}
 
 			if (string.contains("--end")) {
 				String[] split = string.split(":");
 				if (split.length > 1) {
-					String string2 = split[2];
-					if (curName.equals(string2.trim())) {
-						sqlNameList.add(curName);
+					String str = split[2];
+					if (sqlConfig.getId().equals(str.trim())) {
+						sqlNameList.add(sqlConfig.getId());
+						sqlConfigList.add(sqlConfig);
 						indexList.add(i + 1);
+						sqlConfig = null;
 					} else {
 						throw new RuntimeException("--sql error --");
 					}
+					// System.out.println(string);
+
 				}
 			}
 
@@ -81,9 +106,10 @@ public class FreemakerTest {
 		}
 
 		// 读取sql
-		HashMap<String, String> hashMap = new HashMap<String, String>();
+		HashMap<String, SqlConfig> hashMap = new HashMap<String, SqlConfig>();
 		int i = 0;
-		for (String string : sqlNameList) {
+
+		for (SqlConfig sqlconfig2 : sqlConfigList) {
 			StringBuilder sql = new StringBuilder();
 
 			Integer start = indexList.get(i);
@@ -91,23 +117,13 @@ public class FreemakerTest {
 			for (int j = start; j < end - 1; j++) {
 				sql.append(lines.get(j).trim()).append(" ");
 			}
-
-			hashMap.put(string, sql.toString());
+			String string = sql.toString();
+			System.out.println(string);
+			sqlconfig2.setSql(string);
+			hashMap.put(sqlconfig2.getId(), sqlconfig2);
 		}
 
 		System.out.println(hashMap);
-
-		HashMap<String, Object> paramMap = new HashMap<String, Object>();
-		paramMap.put("type", 4);
-
-		Set<String> keySet = hashMap.keySet();
-		for (String string : keySet) {
-			String string2 = hashMap.get(string);
-			System.out.println(string2);
-			String compileString = freemakerTest.compileString(string2,
-					paramMap);
-			System.out.println(compileString);
-		}
 	}
 
 	public String compileString(String name, Map<String, Object> root) {
@@ -133,5 +149,31 @@ public class FreemakerTest {
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage());
 		}
+	}
+
+	@Test
+	public void testName() throws Exception {
+		String str = "--start:select:queryAdmin; paramType=java.util.HashMap; resultType=java.util.HashMap;";
+		String[] split = setSqlConfig(str);
+
+		System.out.println(split.length);
+
+	}
+
+	private String[] setSqlConfig(String str) {
+		String[] split = str.split(";");
+		for (String string : split) {
+			String trim = string.trim();
+			if (!"".equals(trim)) {
+				if (trim.startsWith("paramType=")) {
+					String substring = trim.substring("paramType=".length());
+					System.out.println(substring);
+				} else if (trim.startsWith("resultType=")) {
+					String substring = trim.substring("resultType=".length());
+					System.out.println(substring);
+				}
+			}
+		}
+		return split;
 	}
 }

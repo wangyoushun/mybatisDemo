@@ -1,4 +1,3 @@
-
 package com.six.demo;
 
 import java.io.IOException;
@@ -32,36 +31,6 @@ public class CrudTest {
 	private Logger logger = Logger.getLogger(CrudTest.class);
 	SqlSession openSession;
 	SqlSessionFactory sqlSessionFactory;
-
-	
-	
-	
-
-	@Test
-	public void testUPdate() throws Exception {
-		openSession = sqlSessionFactory.openSession();
-		openSession.update("com.six.domain.User.updateUser", 1);
-		openSession.close();
-	}
-	
-	/**
-	 * 测试存储过程返回值
-	 * @throws Exception
-	 */
-	@Test
-	public void testPro() throws Exception {
-		Map<String, Integer> parameterMap = new HashMap<String, Integer>();
-		parameterMap.put("sexid", 1);
-		parameterMap.put("usercount", -1);
-		openSession = sqlSessionFactory.openSession();
-		for(int i=0; i<10; i++){
-			parameterMap.put("sexid", i);
-			openSession.selectOne("com.six.domain.User.selectUserPro", parameterMap);
-			Integer integer = parameterMap.get("usercount");
-			System.out.println(integer);
-		}
-		
-	}
 
 	@Test
 	public void testPageHelp2() throws Exception {
@@ -148,7 +117,7 @@ public class CrudTest {
 		openSession = sqlSessionFactory.openSession();
 		Map<String, Object> map = new HashMap<String, Object>();
 		User user = new User();
-		user.setName("1");
+		user.setName("叶小名");
 		map.put("user", user);
 		map.put("order", " id desc ");
 		List<User> selectList = openSession.selectList("com.six.domain.User.selectParam2", map);
@@ -197,7 +166,7 @@ public class CrudTest {
 		int ids = 4;
 		Map<String, Object> map = new HashMap<>();
 		map.put("name", "叶小名");
-		map.put("ids", "4");
+		map.put("ids", ids);
 
 		List<User> selectList = openSession.selectList("com.six.domain.User.selectForMapParam", map);
 		System.out.println(selectList);
@@ -317,7 +286,6 @@ public class CrudTest {
 		openSession = sqlSessionFactory.openSession();
 		User user = new User();
 		// user.setAge(23);
-		user.setId(1);
 		user.setName("叶小名2");
 		int insert = openSession.insert("com.six.domain.User.saveUser", user);
 		System.out.println(insert);
