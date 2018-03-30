@@ -1,3 +1,4 @@
+
 package com.six.demo;
 
 import java.io.File;
@@ -17,6 +18,8 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
 
+
+//
 // 读取sql文件 freemaker表达式 测试类
 public class FreemakerTest {
 
@@ -177,3 +180,4 @@ public class FreemakerTest {
 		return split;
 	}
 }
+
