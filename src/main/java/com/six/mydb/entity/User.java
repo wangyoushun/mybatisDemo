@@ -4,8 +4,17 @@ public class User {
 
 	private Integer id;
 	private String name;
-	private String address;
 	private Integer age;
+	private String address;
+	private String userAccount;
+
+	public String getUserAccount() {
+		return userAccount;
+	}
+
+	public void setUserAccount(String userAccount) {
+		this.userAccount = userAccount;
+	}
 
 	public Integer getId() {
 		return id;
@@ -39,9 +48,10 @@ public class User {
 		this.age = age;
 	}
 
+	@Override
 	public String toString() {
-		return "User [id=" + id + ", name=" + name + ", address=" + address
-				+ ", age=" + age + "]";
+		return "User [id=" + id + ", name=" + name + ", age=" + age
+				+ ", address=" + address + ", userAccount=" + userAccount + "]";
 	}
 
 }

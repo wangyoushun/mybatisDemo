@@ -1,8 +1,5 @@
 package com.six.mydb;
 
-
-import static org.junit.Assert.*;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,69 +10,107 @@ import org.junit.Test;
 
 import com.six.mydb.entity.User;
 
-
-
 public class Main {
 
+	public static void main(String[] args) throws Exception {
 
-	
+		selectByForTest();
+
+	}
+
+	private static void selectByForTest() throws Exception {
+		String configPath = "mydb-config.xml";
+		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		HashMap<String, Object> hashMap = new HashMap<String, Object>();
+		ArrayList<Integer> idList = new ArrayList<Integer>();
+		idList.add(3);
+		idList.add(6);
+
+		hashMap.put("idList", idList);
+
+		List<User> selectList = session.selectList("selectByFor", hashMap);
+		System.out.println(selectList);
+	}
+
+	// sql 待参数更新测试
+	private static void updateUserByParamTest() throws Exception {
+		String configPath = "mydb-config.xml";
+		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		HashMap<String, Object> hashMap = new HashMap<String, Object>();
+		hashMap.put("id", 6);
+		hashMap.put("age", 13);
+		hashMap.put("userAccount", "1111111");
+
+		int insert = session.insert("updateUserByParam", hashMap);
+		System.out.println("update--" + insert);
+	}
+
+	// sql 带参数插入测试
+	private static void insertUserByParamTest() throws Exception {
+		String configPath = "mydb-config.xml";
+		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		HashMap<String, Object> hashMap = new HashMap<String, Object>();
+		hashMap.put("name", "cc");
+		hashMap.put("age", 13);
+		hashMap.put("userAccount", "182739273");
+
+		int insert = session.insert("insertUserByParam", hashMap);
+		System.out.println("insert--" + insert);
+	}
+
+	// sql 插入测试
+	private static void insertTest() throws Exception {
+		String configPath = "mydb-config.xml";
+		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		int insert = session.insert("insertUser");
+		System.out.println("insert--" + insert);
+	}
+
+	// sql 测试查询
+	private static void testSelect() throws Exception {
+		String configPath = "mydb-config.xml";
+		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		HashMap<String, Object> hashMap = new HashMap<>();
+		hashMap.put("name", "aaa");
+		hashMap.put("type", 4);
+		List<Object> selectList = session.selectList("queryAdmin", hashMap);
+		System.out.println(selectList);
+	}
+
 	@Test
 	public void testParamList() throws Exception {
-		String configPath="mydb-config.xml";
+		String configPath = "mydb-config.xml";
 		SqlSession session = new SqlSessionFactory(configPath).opsession();
 		System.out.println("=");
 		List<String> arrayList = new ArrayList<>();
 		arrayList.add("aaa");
-		List<Object> selectList = session.selectList("com.six.domain.User.selectUserByList", arrayList);
+		List<Object> selectList = session.selectList(
+				"com.six.domain.User.selectUserByList", arrayList);
 		System.out.println(selectList);
-	}
-	
-	
-	public static void main(String[] args) throws Exception {
-//		test011();
-//		test02();
-//		test03();
-//		test04();
-//		String configPath="mydb-config.xml";
-//		SqlSession session = new SqlSessionFactory(configPath).opsession();
-//		Map<String,Object> map = new HashMap<String,Object>();
-//		map.put("id", 1);
-//		
-//		List<Object> selectList = session.selectList("com.six.domain.User.selectif", map);
-//		System.out.println(selectList);
-//		session.close();
-		String configPath="mydb-config.xml";
-		SqlSession session = new SqlSessionFactory(configPath).opsession();
-	    HashMap<String, Object> hashMap = new HashMap<>();
-	    hashMap.put("name", "aaa");
-	    hashMap.put("type", 4);
-		List<Object> selectList = session.selectList("queryAdmin", hashMap);
-		System.out.println(selectList);
-		
-		
-		
 	}
 
 	private static void test04() throws Exception, SQLException {
-		String configPath="mydb-config.xml";
+		String configPath = "mydb-config.xml";
 		SqlSession session = new SqlSessionFactory(configPath).opsession();
-		List<Object> selectList = session.selectList("com.six.domain.User.selectResultObj", null);
+		List<Object> selectList = session.selectList(
+				"com.six.domain.User.selectResultObj", null);
 		System.out.println(selectList);
 		session.close();
 	}
 
 	private static void test03() throws Exception, SQLException {
-		String configPath="mydb-config.xml";
+		String configPath = "mydb-config.xml";
 		SqlSession session = new SqlSessionFactory(configPath).opsession();
-		List<Object> selectList = session.selectList("com.six.domain.User.selectByNoparam", null);
+		List<Object> selectList = session.selectList(
+				"com.six.domain.User.selectByNoparam", null);
 		System.out.println(selectList);
 		session.close();
 	}
 
 	private static void test02() throws Exception, SQLException {
-		String configPath="mydb-config.xml";
+		String configPath = "mydb-config.xml";
 		SqlSession session = new SqlSessionFactory(configPath).opsession();
-		Map<String,Object> map = new HashMap<String,Object>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("id", 2308);
 		map.put("name", "叶小民1");
 		List<Object> selectList = session.selectList("selectUserByMap", map);
@@ -84,10 +119,10 @@ public class Main {
 	}
 
 	private static void test011() throws Exception, SQLException {
-		String configPath="mydb-config.xml";
+		String configPath = "mydb-config.xml";
 		SqlSession session = new SqlSessionFactory(configPath).opsession();
-		Integer id=2308;
-//		List<Object> selectList = session.selectList("selectAllUser", id);
+		Integer id = 2308;
+		// List<Object> selectList = session.selectList("selectAllUser", id);
 		User user = new User();
 		user.setName("叶小民1");
 		user.setId(id);
@@ -95,13 +130,14 @@ public class Main {
 		System.out.println(selectList);
 		session.close();
 	}
-	
+
 	@Test
 	public void test01() throws Exception {
-		String configPath="mydb-config.xml";
+		String configPath = "mydb-config.xml";
 		SqlSession session = new SqlSessionFactory(configPath).opsession();
 		System.out.println("=");
-//		List<Object> selectList = session.selectList("select * from user", null);
+		// List<Object> selectList = session.selectList("select * from user",
+		// null);
 		List<Object> selectList = session.selectList("selectAllUser", null);
 		System.out.println(selectList);
 	}

@@ -135,21 +135,31 @@ public class SqlSession {
 		}
 	}
 
+	public int insert(String sqlID) throws Exception {
+		return insert(sqlID, null);
+	}
+
 	public int insert(String sqlID, Object param) throws Exception {
+		return update(sqlID, param);
+	}
+
+	public int uodate(String sqlID) throws Exception {
+		return update(sqlID, null);
+	}
+
+	public int update(String sqlID, Object param) throws Exception {
 		SqlConfig mapStatement = config.getSqlMap().get(sqlID);
 		if (mapStatement == null)
 			throw new MyDBExeceptions("no sqlid " + sqlID + " in sql");
-
-		if (!mapStatement.getType().equals("insert")) {
-			throw new MyDBExeceptions("sqlid " + sqlID + " not insert");
+		
+		if (!(mapStatement.getType().equals("insert") || mapStatement.getType().equals("update"))) {
+			throw new MyDBExeceptions("sqlid " + sqlID + " not insert/update");
 		}
 
 		// 组装sql
 		String sql = getSql(sqlID, param, mapStatement);
 		PreparedStatement prepareStatement = connection.prepareStatement(sql);
-		prepareStatement.executeUpdate();
-
-		return 0;
+		return prepareStatement.executeUpdate();
 	}
 
 	public void close() throws SQLException {
