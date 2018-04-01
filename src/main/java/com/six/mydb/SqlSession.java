@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -48,14 +49,17 @@ public class SqlSession {
 		if (resultType == null || resultType.length() == 0) {
 			return (List<T>) DBresultKit.getResultToListMap(rs);
 		} else {
-			return (List<T>) DBresultKit.getResultToListBean(rs, Class.forName(resultType));
+			return (List<T>) DBresultKit.getResultToListBean(rs,
+					Class.forName(resultType));
 		}
 	}
 
 	private String getSql(String sqlID, Object param, SqlConfig mapStatement)
-			throws SQLException, ClassNotFoundException, IllegalAccessException, InvocationTargetException {
+			throws SQLException, ClassNotFoundException,
+			IllegalAccessException, InvocationTargetException {
 		String sql = mapStatement.getSql();
-		Map<String, Object> wrapCollection = wrapCollection(sqlID, param, mapStatement);
+		Map<String, Object> wrapCollection = wrapCollection(sqlID, param,
+				mapStatement);
 		sql = builderSql(sql, wrapCollection);
 		logger.debug("sql: -- " + sql);
 		return sql;
@@ -66,8 +70,9 @@ public class SqlSession {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> wrapCollection(String sqlID, Object param, SqlConfig sqlConfig)
-			throws SQLException, ClassNotFoundException, IllegalAccessException, InvocationTargetException {
+	private Map<String, Object> wrapCollection(String sqlID, Object param,
+			SqlConfig sqlConfig) throws SQLException, ClassNotFoundException,
+			IllegalAccessException, InvocationTargetException {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (param == null) {
 
@@ -79,7 +84,8 @@ public class SqlSession {
 				Method[] methods = clazz.getMethods();
 				for (Method method : methods) {
 					String name = method.getName();
-					if (name != null && name.length() > 3 && "get".equals(name.substring(0, 3))
+					if (name != null && name.length() > 3
+							&& "get".equals(name.substring(0, 3))
 							&& !"getClass".equals(name)) {
 						String beanField = StringHelp.getBeanField(name);
 						map.put(beanField, method.invoke(param));
@@ -88,7 +94,24 @@ public class SqlSession {
 			}
 
 		}
-		return map;
+		return convertSql(map);
+	}
+
+	// 防止sql注入 对特殊字符进行处理
+	private HashMap<String, Object> convertSql(Map<String, Object> map) {
+		HashMap<String, Object> resultMap = new HashMap<String, Object>(
+				map.size());
+		Set<String> keySet = map.keySet();
+		for (String key : keySet) {
+			Object object = map.get(key);
+			if (object instanceof String) {
+				resultMap.put(key,
+						StringHelp.transactSQLInjection((String) object));
+			} else {
+				resultMap.put(key, object);
+			}
+		}
+		return resultMap;
 	}
 
 	public <T> List<T> selectList(String sqlID) throws Exception {
@@ -105,7 +128,8 @@ public class SqlSession {
 			return list.get(0);
 		} else if (list.size() > 1) {
 			throw new MyDBExeceptions(
-					"Expected one result (or null) to be returned by selectOne(), but found: " + list.size());
+					"Expected one result (or null) to be returned by selectOne(), but found: "
+							+ list.size());
 		} else {
 			return null;
 		}
@@ -125,8 +149,6 @@ public class SqlSession {
 		PreparedStatement prepareStatement = connection.prepareStatement(sql);
 		prepareStatement.executeUpdate();
 
-		
-		
 		return 0;
 	}
 
