@@ -9,18 +9,39 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.six.mydb.entity.User;
+import com.six.mydb.exceptions.MyDBExeceptions;
 
 public class Main {
 
-	public static void main(String[] args) throws Exception {
+	private static String configPath;
 
-		selectByForTest();
+	public static void main(String[] args) {
+		transactionTest();
 
 	}
 
+	// 测试事物和回滚
+	private static void transactionTest() {
+		SqlSession session = getSession();
+		try {
+			session.start();
+			for (int i = 0; i < 10; i++) {
+				int insert = session.insert("insertUser");
+				System.out.println("insert--" + insert);
+			}
+			int k = 1 / 0;
+			session.insert("insertUser");
+			session.commit();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			session.rollback();
+		}
+	}
+
 	private static void selectByForTest() throws Exception {
-		String configPath = "mydb-config.xml";
-		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		SqlSession session = getSession();
+
 		HashMap<String, Object> hashMap = new HashMap<String, Object>();
 		ArrayList<Integer> idList = new ArrayList<Integer>();
 		idList.add(3);
@@ -30,6 +51,17 @@ public class Main {
 
 		List<User> selectList = session.selectList("selectByFor", hashMap);
 		System.out.println(selectList);
+	}
+
+	private static SqlSession getSession() {
+		SqlSession session = null;
+		try {
+			configPath = "mydb-config.xml";
+			session = new SqlSessionFactory(configPath).opsession();
+		} catch (Exception e) {
+			throw new MyDBExeceptions();
+		}
+		return session;
 	}
 
 	// sql 待参数更新测试

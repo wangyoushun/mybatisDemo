@@ -151,8 +151,9 @@ public class SqlSession {
 		SqlConfig mapStatement = config.getSqlMap().get(sqlID);
 		if (mapStatement == null)
 			throw new MyDBExeceptions("no sqlid " + sqlID + " in sql");
-		
-		if (!(mapStatement.getType().equals("insert") || mapStatement.getType().equals("update"))) {
+
+		if (!(mapStatement.getType().equals("insert") || mapStatement.getType()
+				.equals("update"))) {
 			throw new MyDBExeceptions("sqlid " + sqlID + " not insert/update");
 		}
 
@@ -160,6 +161,22 @@ public class SqlSession {
 		String sql = getSql(sqlID, param, mapStatement);
 		PreparedStatement prepareStatement = connection.prepareStatement(sql);
 		return prepareStatement.executeUpdate();
+	}
+
+	public void start() throws SQLException {
+		connection.setAutoCommit(false);// 开启事务
+	}
+
+	public void commit() throws SQLException {
+		connection.commit();
+	}
+
+	public void rollback(){
+		try {
+			connection.rollback();
+		} catch (Exception e) {
+			throw new MyDBExeceptions();
+		}
 	}
 
 	public void close() throws SQLException {

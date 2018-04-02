@@ -1,13 +1,9 @@
 package com.six.mydb.utils;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import ognl.Ognl;
 import ognl.OgnlException;
 
 import org.junit.Test;
-import org.w3c.dom.Node;
 
 import com.six.mydb.entity.User;
 

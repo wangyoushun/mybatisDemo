@@ -1,16 +1,27 @@
 
 
 
-1. 传入参数类型转换 -- if逻辑语句改成设配器模式
+delete操作
+通用增删改查支持
+threadlocal+ session
+添加druid数据库连接池
+批量操作的支持
+原生态sql支持
+分页支持
+bean注解支持
+插件拦截器支持
+sql日志
+自动生成sql支持
+重构代码 测试代码
 
 
 
 
 
-已完成
 
-parameterType  基本类型，map类型，实体类型
-resultType  实体类型，map类型
+2018.04.02
+添加对事物的支持
+
 
 
 动态sql，list，数组类型
