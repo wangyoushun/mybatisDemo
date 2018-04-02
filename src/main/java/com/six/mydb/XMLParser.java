@@ -29,7 +29,8 @@ public class XMLParser {
 	private XPath xPath;
 	private Config config;
 	private Logger logger = Logger.getLogger(getClass());
-	private DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	private DocumentBuilderFactory factory = DocumentBuilderFactory
+			.newInstance();
 
 	public XMLParser() {
 		this.config = new Config();
@@ -45,7 +46,8 @@ public class XMLParser {
 		InputStream resourceAsStream = Resources.getResourceAsStream(resources);
 
 		Document document = db.parse(resourceAsStream);
-		Node configurationNode = (Node) xPath.evaluate("/configuration", document, XPathConstants.NODE);
+		Node configurationNode = (Node) xPath.evaluate("/configuration",
+				document, XPathConstants.NODE);
 
 		parserProperties(configurationNode);
 		parserSettings(configurationNode);
@@ -64,13 +66,15 @@ public class XMLParser {
 	public void parserMappers(Node configurationNode) throws Exception {
 		logger.debug("=========parserMappers============start");
 
-		Node mappersNode = (Node) xPath.evaluate("mappers", configurationNode, XPathConstants.NODE);
+		Node mappersNode = (Node) xPath.evaluate("mappers", configurationNode,
+				XPathConstants.NODE);
 		if (mappersNode.hasChildNodes()) {
 			NodeList childNodes = mappersNode.getChildNodes();
 			for (int i = 0; i < childNodes.getLength(); i++) {
 				Node item = childNodes.item(i);
 				if (item.getNodeType() == Node.ELEMENT_NODE) {
-					String resource = item.getAttributes().getNamedItem("resource").getNodeValue();
+					String resource = item.getAttributes()
+							.getNamedItem("resource").getNodeValue();
 					parserSqlMapper(resource);
 				}
 			}
@@ -81,9 +85,10 @@ public class XMLParser {
 
 	// 解析sql文件
 	public void parserSqlMapper(String path) {
-		logger.debug("=========parsersql============start==="+path);
-		
-		String filePath = Thread.currentThread().getContextClassLoader().getResource(path).getFile();
+		logger.debug("=========parsersql============start===" + path);
+
+		String filePath = Thread.currentThread().getContextClassLoader()
+				.getResource(path).getFile();
 		List<String> lines = FileTool.lines(new File(filePath));
 
 		ArrayList<String> sqlNameList = new ArrayList<String>();
@@ -109,11 +114,15 @@ public class XMLParser {
 						String trim = string2.trim();
 						if (!"".equals(trim)) {
 							if (trim.startsWith("paramType=")) {
-//								System.out.println("1" + trim.substring("paramType=".length()));
-								sqlConfig.setParamType(trim.substring("paramType=".length()));
+								// System.out.println("1" +
+								// trim.substring("paramType=".length()));
+								sqlConfig.setParamType(trim
+										.substring("paramType=".length()));
 							} else if (trim.startsWith("resultType=")) {
-								sqlConfig.setResultType(trim.substring("resultType=".length()));
-//								System.out.println("2" + trim.substring("resultType=".length()));
+								sqlConfig.setResultType(trim
+										.substring("resultType=".length()));
+								// System.out.println("2" +
+								// trim.substring("resultType=".length()));
 							}
 						}
 					}
@@ -172,17 +181,15 @@ public class XMLParser {
 			System.out.println(string);
 			sqlconfig2.setSql(string);
 			hashMap.put(sqlconfig2.getId(), sqlconfig2);
+			i += 2;
 		}
 
 		System.out.println(hashMap);
 		config.setSqlMap(hashMap);
-//		config.setSqlMap(hashMap);
-		logger.debug("=========parsersql============end==="+path);
+		// config.setSqlMap(hashMap);
+		logger.debug("=========parsersql============end===" + path);
 	}
 
-	
-
-	
 	public String getAttrValue(Node node, String name) {
 		Node namedItem = node.getAttributes().getNamedItem(name);
 		if (namedItem == null) {
@@ -196,7 +203,8 @@ public class XMLParser {
 	 */
 	public void parserProperties(Node configurationNode) throws Exception {
 		logger.debug("=========parserProperties============  start");
-		Node propertiesNode = (Node) xPath.evaluate("properties", configurationNode, XPathConstants.NODE);
+		Node propertiesNode = (Node) xPath.evaluate("properties",
+				configurationNode, XPathConstants.NODE);
 
 		Properties properties = new Properties();
 		if (propertiesNode.hasChildNodes()) {
@@ -204,8 +212,10 @@ public class XMLParser {
 			for (int i = 0; i < childNodes.getLength(); i++) {
 				Node item = childNodes.item(i);
 				if (item.getNodeType() == Node.ELEMENT_NODE) {
-					String name = item.getAttributes().getNamedItem("name").getNodeValue();
-					String value = item.getAttributes().getNamedItem("value").getNodeValue();
+					String name = item.getAttributes().getNamedItem("name")
+							.getNodeValue();
+					String value = item.getAttributes().getNamedItem("value")
+							.getNodeValue();
 					properties.put(name, value);
 				}
 			}
@@ -216,7 +226,8 @@ public class XMLParser {
 		String nodeValue = namedItem.getNodeValue();
 		print(nodeValue);
 
-		InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream("datasource.properties");
+		InputStream resourceAsStream = getClass().getClassLoader()
+				.getResourceAsStream("datasource.properties");
 		Properties properties2 = new Properties();
 		properties2.load(resourceAsStream);
 		properties.putAll(properties2);
@@ -234,7 +245,8 @@ public class XMLParser {
 	 */
 	public void parserSettings(Node configurationNode) throws Exception {
 		logger.debug("=========parserSettings=================start");
-		Node settingsNode = (Node) xPath.evaluate("settings", configurationNode, XPathConstants.NODE);
+		Node settingsNode = (Node) xPath.evaluate("settings",
+				configurationNode, XPathConstants.NODE);
 		logger.debug(settingsNode.getNodeName());
 
 		NodeList childNodes = settingsNode.getChildNodes();
@@ -242,8 +254,10 @@ public class XMLParser {
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			Node item = childNodes.item(i);
 			if (item.getNodeType() == Node.ELEMENT_NODE) {
-				String name = item.getAttributes().getNamedItem("name").getNodeValue();
-				String value = item.getAttributes().getNamedItem("value").getNodeValue();
+				String name = item.getAttributes().getNamedItem("name")
+						.getNodeValue();
+				String value = item.getAttributes().getNamedItem("value")
+						.getNodeValue();
 				setMap.put(name, value);
 			}
 		}
@@ -258,20 +272,25 @@ public class XMLParser {
 	 */
 	public void parserEnvironments(Node configurationNode) throws Exception {
 		logger.debug("=========parserEnvironments===============start");
-		Node environmentsNode = (Node) xPath.evaluate("environments", configurationNode, XPathConstants.NODE);
+		Node environmentsNode = (Node) xPath.evaluate("environments",
+				configurationNode, XPathConstants.NODE);
 
 		NodeList childNodes = environmentsNode.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			Node item = childNodes.item(i);
 
 			if (item.getNodeType() == Node.ELEMENT_NODE) {
-				String id = item.getAttributes().getNamedItem("id").getNodeValue();
+				String id = item.getAttributes().getNamedItem("id")
+						.getNodeValue();
 				Environment environment = new Environment();
-				Node transactionManager = (Node) xPath.evaluate("transactionManager", item, XPathConstants.NODE);
-				String nodeValue = transactionManager.getAttributes().getNamedItem("autoCmit").getNodeValue();
+				Node transactionManager = (Node) xPath.evaluate(
+						"transactionManager", item, XPathConstants.NODE);
+				String nodeValue = transactionManager.getAttributes()
+						.getNamedItem("autoCmit").getNodeValue();
 				environment.setAutoCmit(Boolean.parseBoolean(nodeValue));
 
-				Node dataSource = (Node) xPath.evaluate("dataSource", item, XPathConstants.NODE);
+				Node dataSource = (Node) xPath.evaluate("dataSource", item,
+						XPathConstants.NODE);
 				Map<String, String> childAttr = getChildAttr(dataSource);
 				parserValue(childAttr);
 
@@ -303,8 +322,10 @@ public class XMLParser {
 			for (int i = 0; i < childNodes.getLength(); i++) {
 				Node item = childNodes.item(i);
 				if (item.getNodeType() == Node.ELEMENT_NODE) {
-					String name = item.getAttributes().getNamedItem("name").getNodeValue();
-					String value = item.getAttributes().getNamedItem("value").getNodeValue();
+					String name = item.getAttributes().getNamedItem("name")
+							.getNodeValue();
+					String value = item.getAttributes().getNamedItem("value")
+							.getNodeValue();
 					childAttrMap.put(name, value);
 				}
 			}
@@ -330,7 +351,8 @@ public class XMLParser {
 
 	@Test
 	public void testName() throws Exception {
-		InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream("com/six/mydb/UserMapper.xml");
+		InputStream resourceAsStream = getClass().getClassLoader()
+				.getResourceAsStream("com/six/mydb/UserMapper.xml");
 		System.out.println(resourceAsStream);
 	}
 
