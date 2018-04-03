@@ -3,7 +3,8 @@
 
 -- delete操作
 -- 通用增删改查支持
-threadlocal+ session
+XX threadlocal+ session
+
 添加druid数据库连接池
 批量操作的支持
 原生态sql支持
