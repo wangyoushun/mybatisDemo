@@ -1,4 +1,11 @@
 
+--start: insert: insertUserBatch;
+insert user (name, address, age, user_account) values ('${name}', '${address}'
+,${age}, '${userAccount}'
+)
+
+--end: insert: insertUserBatch
+
 
 --start:select: queryForUser; resultType=com.six.mydb.entity.User;
 select * from user

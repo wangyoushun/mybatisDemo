@@ -27,7 +27,6 @@ public class DruidTest {
 
 			for (int i = 1; i < n; i++) {
 				Object object = rs.getObject(i);
-
 				System.out.println(object);
 			}
 

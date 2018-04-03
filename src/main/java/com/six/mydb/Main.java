@@ -16,12 +16,60 @@ public class Main {
 	private static String configPath;
 
 	public static void main(String[] args) throws Exception {
+//		insertBatchTest();
+		deleteBatchByIds();
+	}
+
+	// 测试根据主键批量删除
+	private static void deleteBatchByIds() throws Exception {
+		List<User> list = druidAndResultTypeTest();
 		SqlSession session = getSession();
+		int deleteBatchByIds = session.deleteBatchByIds(list, 40);
+		System.out.println(deleteBatchByIds);
+	}
+
+	// 测试循环插入的效率
+	private static void insertFor() {
+		long start = System.currentTimeMillis();
+		SqlSession session = getSession();
+		for (int i = 0; i < 1000; i++) {
+			User user = new User();
+			user.setName("aabbcc" + i);
+			user.setAddress("上hi" + i);
+			user.setAge(i % 10);
+			user.setUserAccount("18882939");
+			session.insert("insertUserBatch", user);
+		}
+		long end = System.currentTimeMillis();
+		System.out.println(end - start);
+	}
+
+	// 批量插入
+	private static void insertBatchTest() {
+		long start = System.currentTimeMillis();
+		SqlSession session = getSessionByDruid();
+		ArrayList<User> list = new ArrayList<User>();
+		for (int i = 0; i < 1000; i++) {
+			User user = new User();
+			user.setName("aabbcc" + i);
+			user.setAddress("上hi" + i);
+			user.setAge(i % 10);
+			user.setUserAccount("18882939");
+			list.add(user);
+		}
+		int insertBatch = session.insertBatch("insertUserBatch", list, 40);
+		System.out.println(insertBatch);
+		long end = System.currentTimeMillis();
+		System.out.println(end - start);
+	}
+
+	private static List<User> druidAndResultTypeTest() throws Exception {
+		SqlSession session = getSessionByDruid();
 		List<User> selectList = session.selectList("queryForUser");
 		for (User user : selectList) {
 			System.out.println(user);
 		}
-		
+		return selectList;
 	}
 
 	private static void deleteObjTest() {
@@ -109,6 +157,17 @@ public class Main {
 		return session;
 	}
 
+	private static SqlSession getSessionByDruid() {
+		SqlSession session = null;
+		try {
+			configPath = "mydb-config.xml";
+			session = new SqlSessionFactory(configPath, "druid").opsession();
+		} catch (Exception e) {
+			throw new MyDBExeceptions();
+		}
+		return session;
+	}
+
 	// sql 待参数更新测试
 	private static void updateUserByParamTest() throws Exception {
 		String configPath = "mydb-config.xml";
@@ -161,14 +220,16 @@ public class Main {
 		System.out.println("=");
 		List<String> arrayList = new ArrayList<>();
 		arrayList.add("aaa");
-		List<Object> selectList = session.selectList("com.six.domain.User.selectUserByList", arrayList);
+		List<Object> selectList = session.selectList(
+				"com.six.domain.User.selectUserByList", arrayList);
 		System.out.println(selectList);
 	}
 
 	private static void test04() throws Exception, SQLException {
 		String configPath = "mydb-config.xml";
 		SqlSession session = new SqlSessionFactory(configPath).opsession();
-		List<Object> selectList = session.selectList("com.six.domain.User.selectResultObj", null);
+		List<Object> selectList = session.selectList(
+				"com.six.domain.User.selectResultObj", null);
 		System.out.println(selectList);
 		session.close();
 	}
@@ -176,7 +237,8 @@ public class Main {
 	private static void test03() throws Exception, SQLException {
 		String configPath = "mydb-config.xml";
 		SqlSession session = new SqlSessionFactory(configPath).opsession();
-		List<Object> selectList = session.selectList("com.six.domain.User.selectByNoparam", null);
+		List<Object> selectList = session.selectList(
+				"com.six.domain.User.selectByNoparam", null);
 		System.out.println(selectList);
 		session.close();
 	}

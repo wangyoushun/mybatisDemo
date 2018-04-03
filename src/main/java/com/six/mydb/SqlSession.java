@@ -30,6 +30,7 @@ public class SqlSession {
 		this.connection = conn;
 	}
 
+	// select
 	@SuppressWarnings("unchecked")
 	public <T> List<T> selectList(String sqlID, Object param) throws Exception {
 
@@ -54,7 +55,8 @@ public class SqlSession {
 			if (resultType == null || resultType.length() == 0) {
 				resultList = (List<T>) DBresultKit.getResultToListMap(rs);
 			} else {
-				resultList = (List<T>) DBresultKit.getResultToListBean(rs, Class.forName(resultType));
+				resultList = (List<T>) DBresultKit.getResultToListBean(rs,
+						Class.forName(resultType));
 			}
 		} finally {
 			close(prepareStatement, rs);
@@ -63,10 +65,11 @@ public class SqlSession {
 		return resultList;
 	}
 
+	// close
 	private void close(PreparedStatement prepareStatement, ResultSet rs) {
 		closeResultSet(rs);
 		closeStatement(prepareStatement);
-		close();
+//		close();
 	}
 
 	public void closeStatement(Statement stmt) {
@@ -76,7 +79,8 @@ public class SqlSession {
 			} catch (SQLException ex) {
 				logger.debug("Could not close JDBC Statement", ex);
 			} catch (Throwable ex) {
-				logger.debug("Unexpected exception on closing JDBC Statement", ex);
+				logger.debug("Unexpected exception on closing JDBC Statement",
+						ex);
 			}
 		}
 	}
@@ -88,25 +92,30 @@ public class SqlSession {
 			} catch (SQLException ex) {
 				logger.trace("Could not close JDBC ResultSet", ex);
 			} catch (Throwable ex) {
-				logger.trace("Unexpected exception on closing JDBC ResultSet", ex);
+				logger.trace("Unexpected exception on closing JDBC ResultSet",
+						ex);
 			}
 		}
 	}
 
-	private String getSql(String sqlID, Object param, SqlConfig mapStatement) throws Exception {
+	// 拼接sql
+	private String getSql(String sqlID, Object param, SqlConfig mapStatement)
+			throws Exception {
 		String sql = mapStatement.getSql();
-		Map<String, Object> wrapCollection = wrapCollection(sqlID, param, mapStatement);
+		Map<String, Object> wrapCollection = wrapCollection(param);
 		sql = builderSql(sql, wrapCollection);
 		logger.debug("sql: -- " + sql);
 		return sql;
 	}
 
+	// freemarker 构建动态sql
 	private String builderSql(String sql, Map<String, Object> wrapCollection) {
 		return FreeMarkerKit.parseSql(sql, wrapCollection);
 	}
 
+	// 传参封装
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> wrapCollection(String sqlID, Object param, SqlConfig sqlConfig) throws Exception {
+	private Map<String, Object> wrapCollection(Object param) throws Exception {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (param == null) {
 
@@ -127,12 +136,14 @@ public class SqlSession {
 
 	// 防止sql注入 对特殊字符进行处理
 	private HashMap<String, Object> convertSql(Map<String, Object> map) {
-		HashMap<String, Object> resultMap = new HashMap<String, Object>(map.size());
+		HashMap<String, Object> resultMap = new HashMap<String, Object>(
+				map.size());
 		Set<String> keySet = map.keySet();
 		for (String key : keySet) {
 			Object object = map.get(key);
 			if (object instanceof String) {
-				resultMap.put(key, StringHelp.transactSQLInjection((String) object));
+				resultMap.put(key,
+						StringHelp.transactSQLInjection((String) object));
 			} else {
 				resultMap.put(key, object);
 			}
@@ -154,7 +165,8 @@ public class SqlSession {
 			return list.get(0);
 		} else if (list.size() > 1) {
 			throw new MyDBExeceptions(
-					"Expected one result (or null) to be returned by selectOne(), but found: " + list.size());
+					"Expected one result (or null) to be returned by selectOne(), but found: "
+							+ list.size());
 		} else {
 			return null;
 		}
@@ -179,9 +191,11 @@ public class SqlSession {
 			if (mapStatement == null)
 				throw new MyDBExeceptions("no sqlid " + sqlID + " in sql");
 
-			if (!(mapStatement.getType().equals("insert") || mapStatement.getType().equals("update")
-					|| mapStatement.getType().equals("delete"))) {
-				throw new MyDBExeceptions("sqlid " + sqlID + " not insert/update/detele");
+			String type = mapStatement.getType().trim();
+			if (!(type.equals("insert")
+					|| type.equals("update") || type.equals("delete"))) {
+				throw new MyDBExeceptions("sqlid " + sqlID
+						+ " not insert/update/detele");
 			}
 
 			// 组装sql
@@ -220,17 +234,120 @@ public class SqlSession {
 		return executeSql(SqlKit.buildDeleteSql(obj));
 	}
 
+	// 原生态sql处理
 	public int executeSql(String sql) {
 		try {
-			PreparedStatement prepareStatement = connection.prepareStatement(sql);
+			PreparedStatement prepareStatement = connection
+					.prepareStatement(sql);
 			return prepareStatement.executeUpdate();
 		} catch (SQLException e) {
 			throw new MyDBExeceptions(e.getMessage());
 		}
 	}
 
+	public <T> int insertBatch(String sqlID, List<T> list, int batchSize) {
+		int count = 0;
+
+		try {
+			SqlConfig mapStatement = config.getSqlMap().get(sqlID);
+			if (mapStatement == null)
+				throw new MyDBExeceptions("no sqlid " + sqlID + " in sql");
+
+			String type = mapStatement.getType().trim();
+			if (!(type.equals("insert")
+					|| type.equals("update") || type.equals("delete"))) {
+				throw new MyDBExeceptions("sqlid " + sqlID
+						+ " not insert/update/detele");
+			}
+
+			int size = list.size();
+			if (list == null || size == 0) {
+				return 0;
+			}
+
+			PreparedStatement prepareStatement=null;
+			try {
+				String sql = mapStatement.getSql();
+				 prepareStatement = connection
+						.prepareStatement(sql);
+				connection.setAutoCommit(false); // 开始事务
+
+				for (int i = 0; i < size; i++) {
+					T t = list.get(i);
+					Map<String, Object> wrapCollection = wrapCollection(t);
+					String builderSql = builderSql(sql, wrapCollection);
+					prepareStatement.addBatch(builderSql);
+
+					if ((i % batchSize == 0 && i != 0) || i == (size - 1)) {
+						prepareStatement.executeBatch();
+						commit();
+						connection.setAutoCommit(false); // 开始事务
+						System.out.println("------------>" + batchSize);
+
+						if (i == size - 1) {
+							count = size;
+						} else {
+							count += batchSize;
+						}
+					}
+				}
+			} finally {
+				close(prepareStatement, null);
+			}
+		} catch (Exception e) {
+			throw new MyDBExeceptions(e);
+		}
+		return count;
+	}
+
+	public <T> int deleteBatchByIds(List<T> list, int batchSize) {
+		int count = 0;
+
+		try {
+			int size = list.size();
+			if (list == null || size == 0) {
+				return 0;
+			}
+
+			PreparedStatement prepareStatement=null;
+			try {
+				
+				 prepareStatement = connection
+						.prepareStatement("");
+				connection.setAutoCommit(false); // 开始事务
+				
+				for (int i = 0; i < size; i++) {
+					T t = list.get(i);
+					String sql = SqlKit.buildDeleteSql(t);
+					prepareStatement.addBatch(sql);
+
+					if ((i % batchSize == 0 && i != 0) || i == (size - 1)) {
+						prepareStatement.executeBatch();
+						commit();
+						connection.setAutoCommit(false); // 开始事务
+						System.out.println("------------>" + batchSize);
+
+						if (i == size - 1) {
+							count = size;
+						} else {
+							count += batchSize;
+						}
+					}
+				}
+			} finally {
+				close(prepareStatement, null);
+			}
+		} catch (Exception e) {
+			throw new MyDBExeceptions(e);
+		}
+		return count;
+	}
+
+	
+	
+	// 开启事务
 	public void start() throws SQLException {
-		connection.setAutoCommit(false);// 开启事务
+		connection.setAutoCommit(false);
 	}
 
 	public void commit() throws SQLException {
