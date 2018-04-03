@@ -1,11 +1,36 @@
 package com.six.domain;
 
+import java.util.List;
+
 public class User {
 
 	private Integer id;
 	private String name;
 	private String address;
 	private Integer age;
+
+	private List<String> list;
+	
+	private User u;
+	
+	
+	
+	
+	public User getU() {
+		return u;
+	}
+
+	public void setU(User u) {
+		this.u = u;
+	}
+
+	public List<String> getList() {
+		return list;
+	}
+
+	public void setList(List<String> list) {
+		this.list = list;
+	}
 
 	public Integer getId() {
 		return id;
@@ -39,10 +64,10 @@ public class User {
 		this.age = age;
 	}
 
-	@Override
-	public String toString() {
-		return "User [id=" + id + ", name=" + name + ", address=" + address
-				+ ", age=" + age + "]";
-	}
+//	@Override
+//	public String toString() {
+//		return "User [id=" + id + ", name=" + name + ", address=" + address
+//				+ ", age=" + age + "]";
+//	}
 
 }

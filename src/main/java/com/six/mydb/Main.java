@@ -15,9 +15,54 @@ public class Main {
 
 	private static String configPath;
 
-	public static void main(String[] args) {
-		transactionTest();
+	public static void main(String[] args) throws Exception {
+		SqlSession session = getSession();
+		List<User> selectList = session.selectList("queryForUser");
+		for (User user : selectList) {
+			System.out.println(user);
+		}
+		
+	}
 
+	private static void deleteObjTest() {
+		// 面向对象 删除
+		SqlSession session = getSession();
+		User user = new User();
+		user.setId(2325);
+
+		session.deleteById(user);
+		session.close();
+	}
+
+	// 面向对象 更新
+	private static void updateObjTest() {
+		SqlSession session = getSession();
+		User user = new User();
+		user.setAddress("234");
+		user.setName("zhang");
+		user.setId(2325);
+
+		session.updateById(user);
+		session.close();
+	}
+
+	// 面向对象 插入
+	private static void insertObj() {
+		SqlSession session = getSession();
+		User user = new User();
+		user.setAddress("abc");
+		user.setName("王");
+
+		session.insert(user);
+		session.close();
+	}
+
+	// 测试传入 单个参数 (基本类型+string)
+	private static void deleteByIDTest() {
+		SqlSession session = getSession();
+		int id = 12;
+		int delete = session.delete("deleteUserByID", id);
+		System.out.println(delete);
 	}
 
 	// 测试事物和回滚
@@ -29,7 +74,7 @@ public class Main {
 				int insert = session.insert("insertUser");
 				System.out.println("insert--" + insert);
 			}
-			int k = 1 / 0;
+			// int k = 1 / 0;
 			session.insert("insertUser");
 			session.commit();
 
@@ -116,16 +161,14 @@ public class Main {
 		System.out.println("=");
 		List<String> arrayList = new ArrayList<>();
 		arrayList.add("aaa");
-		List<Object> selectList = session.selectList(
-				"com.six.domain.User.selectUserByList", arrayList);
+		List<Object> selectList = session.selectList("com.six.domain.User.selectUserByList", arrayList);
 		System.out.println(selectList);
 	}
 
 	private static void test04() throws Exception, SQLException {
 		String configPath = "mydb-config.xml";
 		SqlSession session = new SqlSessionFactory(configPath).opsession();
-		List<Object> selectList = session.selectList(
-				"com.six.domain.User.selectResultObj", null);
+		List<Object> selectList = session.selectList("com.six.domain.User.selectResultObj", null);
 		System.out.println(selectList);
 		session.close();
 	}
@@ -133,8 +176,7 @@ public class Main {
 	private static void test03() throws Exception, SQLException {
 		String configPath = "mydb-config.xml";
 		SqlSession session = new SqlSessionFactory(configPath).opsession();
-		List<Object> selectList = session.selectList(
-				"com.six.domain.User.selectByNoparam", null);
+		List<Object> selectList = session.selectList("com.six.domain.User.selectByNoparam", null);
 		System.out.println(selectList);
 		session.close();
 	}

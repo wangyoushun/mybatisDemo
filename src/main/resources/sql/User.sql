@@ -1,4 +1,13 @@
 
+
+--start:select: queryForUser; resultType=com.six.mydb.entity.User;
+select * from user
+
+
+--end:select:queryForUser
+
+
+
 --start:select:queryAdmin; paramType=java.util.HashMap; resultType=java.util.HashMap;
 		SELECT * FROM user WHERE 1 = 1  
 		<#if type==4>
@@ -76,6 +85,12 @@ and id in (
 
 --end:select:selectByFor
 
+
+--start:delete:deleteUserByID;
+delete from user where id=#{_param}
+
+
+--end:delete:deleteUserByID
 
 		
 		

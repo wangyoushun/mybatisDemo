@@ -10,7 +10,8 @@ public class SqlSessionFactory {
 	private ComboPooledDataSource dataSource = new ComboPooledDataSource();
 	private Connection conn;
 	private String resources;
-
+	
+	
 	public SqlSessionFactory(String resources) {
 		this.resources = resources;
 	}

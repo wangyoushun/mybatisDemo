@@ -1,8 +1,8 @@
 
 
 
-delete操作
-通用增删改查支持
+-- delete操作
+-- 通用增删改查支持
 threadlocal+ session
 添加druid数据库连接池
 批量操作的支持
