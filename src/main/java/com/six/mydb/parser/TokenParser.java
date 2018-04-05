@@ -1,8 +1,10 @@
-package com.six.mydb;
+package com.six.mydb.parser;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import com.six.mydb.config.Config;
 
 public class TokenParser {
 

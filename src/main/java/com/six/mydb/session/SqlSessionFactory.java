@@ -1,9 +1,12 @@
-package com.six.mydb;
+package com.six.mydb.session;
 
 import java.sql.Connection;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.six.mydb.config.Config;
+import com.six.mydb.config.Environment;
+import com.six.mydb.parser.XMLParser;
 
 public class SqlSessionFactory {
 
@@ -23,7 +26,7 @@ public class SqlSessionFactory {
 		this.dataSourcesType = dataSourcesType;
 	}
 
-	public SqlSession opsession() throws Exception {
+	public SqlSessionImpl opsession() throws Exception {
 		XMLParser xmlParser = new XMLParser();
 		Config config = xmlParser.parserXml(resources);
 		Environment environment = config.getEnvironment();
@@ -44,7 +47,7 @@ public class SqlSessionFactory {
 			conn = dataSource.getConnection();
 		}
 
-		return new SqlSession(config, conn);
+		return new SqlSessionImpl(config, conn);
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.six.mydb;
+package com.six;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;

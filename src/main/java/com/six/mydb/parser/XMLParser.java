@@ -1,4 +1,4 @@
-package com.six.mydb;
+package com.six.mydb.parser;
 
 import java.io.File;
 import java.io.InputStream;
@@ -22,6 +22,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.six.mydb.config.Config;
+import com.six.mydb.config.Environment;
+import com.six.mydb.config.SqlConfig;
 import com.six.mydb.utils.FileTool;
 
 public class XMLParser {
@@ -44,6 +47,8 @@ public class XMLParser {
 
 		// 解析dbconfig
 		InputStream resourceAsStream = Resources.getResourceAsStream(resources);
+		String path4 = ClassLoader.getSystemClassLoader().getResource(resources).toString();
+		System.out.println(path4);
 
 		Document document = db.parse(resourceAsStream);
 		Node configurationNode = (Node) xPath.evaluate("/configuration",

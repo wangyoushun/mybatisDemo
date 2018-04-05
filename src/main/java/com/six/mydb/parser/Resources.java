@@ -1,4 +1,4 @@
-package com.six.mydb;
+package com.six.mydb.parser;
 
 import java.io.IOException;
 import java.io.InputStream;

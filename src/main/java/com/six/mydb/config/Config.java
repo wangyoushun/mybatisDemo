@@ -1,4 +1,4 @@
-package com.six.mydb;
+package com.six.mydb.config;
 
 import java.util.Map;
 import java.util.Properties;

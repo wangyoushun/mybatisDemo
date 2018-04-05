@@ -1,4 +1,4 @@
-package com.six.mydb;
+package com.six.mydb.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,7 @@ public class XMLConfigEntityResolver implements EntityResolver {
 			throws SAXException, IOException {
 
 		System.out.println("XMLConfigEntityResolver=====");
-		String path = getClass().getResource("").getPath();
+		String path = ClassLoader.getSystemClassLoader().getResource("").getPath();
 		systemId="file://"+path+systemId.substring(systemId.lastIndexOf("/")+1);
 		InputStream resourceAsStream = getClass().getClassLoader()
 				.getResourceAsStream(systemId);

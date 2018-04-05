@@ -1,4 +1,4 @@
-package com.six.mydb;
+package com.six.mydb.session;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,37 +10,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
+import com.six.mydb.Page;
+import com.six.mydb.config.Config;
+import com.six.mydb.config.SqlConfig;
+import com.six.mydb.config.TypeConstants;
 import com.six.mydb.exceptions.MyDBExeceptions;
 import com.six.mydb.utils.BeanKit;
 import com.six.mydb.utils.DBresultKit;
 import com.six.mydb.utils.FreeMarkerKit;
+import com.six.mydb.utils.LogKit;
 import com.six.mydb.utils.SqlKit;
 import com.six.mydb.utils.StringHelp;
 
-public class SqlSession {
+public class SqlSessionImpl implements SqlSession {
 
-	private Logger logger = Logger.getLogger(getClass());
 	private Connection connection;
 	private Config config;
 
-	public SqlSession(Config config, Connection conn) {
+	public SqlSessionImpl(Config config, Connection conn) {
 		this.config = config;
 		this.connection = conn;
 	}
 
 	// select
 	@SuppressWarnings("unchecked")
-	public <T> List<T> selectList(String sqlID, Object param) throws Exception {
+	public <T> List<T> selectList(String sqlID, Object param) {
+		LogKit.debug("selectList sqlid " + sqlID);
 
 		SqlConfig mapStatement = config.getSqlMap().get(sqlID);
-		if (mapStatement == null)
-			throw new MyDBExeceptions("no sqlid " + sqlID + " in sql");
-
-		if (!mapStatement.getType().equals("select")) {
-			throw new MyDBExeceptions("sqlid " + sqlID + " not query");
-		}
+		checkSqlIdForQuery(sqlID, mapStatement);
 
 		// 组装sql
 		String sql = getSql(sqlID, param, mapStatement);
@@ -58,6 +56,8 @@ public class SqlSession {
 				resultList = (List<T>) DBresultKit.getResultToListBean(rs,
 						Class.forName(resultType));
 			}
+		} catch (Exception ex) {
+			LogKit.error(ex.getMessage());
 		} finally {
 			close(prepareStatement, rs);
 		}
@@ -65,11 +65,79 @@ public class SqlSession {
 		return resultList;
 	}
 
+	// selectPage
+	@SuppressWarnings("unchecked")
+	public <T> List<T> selectListPage(String sqlID, Object param, Page page) {
+
+		SqlConfig mapStatement = config.getSqlMap().get(sqlID);
+		checkSqlIdForQuery(sqlID, mapStatement);
+
+		// 组装sql
+		String sql = getSql(sqlID, param, mapStatement);
+		String countSql = builderCountSql(sql);
+
+		PreparedStatement prepareStatement = null;
+		ResultSet rs = null;
+		List<T> resultList = null;
+
+		try {
+			page.setTotal(getTotal(countSql));
+			sql = "select * from (" + sql + ") t limit "
+					+ page.getCurrentPage() + ", " + page.getPageSize();
+
+			prepareStatement = connection.prepareStatement(sql);
+			rs = prepareStatement.executeQuery();
+			String resultType = mapStatement.getResultType();
+			if (resultType == null || resultType.length() == 0) {
+				resultList = (List<T>) DBresultKit.getResultToListMap(rs);
+			} else {
+				resultList = (List<T>) DBresultKit.getResultToListBean(rs,
+						Class.forName(resultType));
+			}
+		} catch (Exception ex) {
+			LogKit.error(ex.getMessage());
+		} finally {
+			close(prepareStatement, rs);
+		}
+		return resultList;
+	}
+
+	private void checkSqlIdForQuery(String sqlID, SqlConfig mapStatement) {
+		if (mapStatement == null)
+			throw new MyDBExeceptions("no sqlid " + sqlID + " in sql");
+
+		if (!mapStatement.getType().equals("select")) {
+			throw new MyDBExeceptions("sqlid " + sqlID + " not query");
+		}
+	}
+
+	private long getTotal(String sql) {
+		long total = 0;
+		try {
+			PreparedStatement prepareStatement = null;
+			ResultSet rs = null;
+			prepareStatement = connection.prepareStatement(sql);
+			rs = prepareStatement.executeQuery();
+			List<Map<String, Object>> resultToListMap = DBresultKit
+					.getResultToListMap(rs);
+			Map<String, Object> map = resultToListMap.get(0);
+			close(prepareStatement, rs);
+			total = (long) map.get("total");
+		} catch (SQLException e) {
+			LogKit.error(e.getMessage());
+		}
+		return total;
+	}
+
+	private String builderCountSql(String sql) {
+		return "select count(1) total from (" + sql + ") t";
+	}
+
 	// close
 	private void close(PreparedStatement prepareStatement, ResultSet rs) {
 		closeResultSet(rs);
 		closeStatement(prepareStatement);
-//		close();
+		// close();
 	}
 
 	public void closeStatement(Statement stmt) {
@@ -77,10 +145,10 @@ public class SqlSession {
 			try {
 				stmt.close();
 			} catch (SQLException ex) {
-				logger.debug("Could not close JDBC Statement", ex);
+				LogKit.debug("Could not close JDBC Statement" + ex.getMessage());
 			} catch (Throwable ex) {
-				logger.debug("Unexpected exception on closing JDBC Statement",
-						ex);
+				LogKit.debug("Unexpected exception on closing JDBC Statement"
+						+ ex.getMessage());
 			}
 		}
 	}
@@ -90,21 +158,21 @@ public class SqlSession {
 			try {
 				rs.close();
 			} catch (SQLException ex) {
-				logger.trace("Could not close JDBC ResultSet", ex);
+				LogKit.error("Could not close JDBC ResultSet "
+						+ ex.getMessage());
 			} catch (Throwable ex) {
-				logger.trace("Unexpected exception on closing JDBC ResultSet",
-						ex);
+				LogKit.error("Unexpected exception on closing JDBC ResultSet"
+						+ ex.getMessage());
 			}
 		}
 	}
 
 	// 拼接sql
-	private String getSql(String sqlID, Object param, SqlConfig mapStatement)
-			throws Exception {
+	private String getSql(String sqlID, Object param, SqlConfig mapStatement) {
 		String sql = mapStatement.getSql();
 		Map<String, Object> wrapCollection = wrapCollection(param);
 		sql = builderSql(sql, wrapCollection);
-		logger.debug("sql: -- " + sql);
+		LogKit.debug("sql: -- " + sql);
 		return sql;
 	}
 
@@ -115,7 +183,7 @@ public class SqlSession {
 
 	// 传参封装
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> wrapCollection(Object param) throws Exception {
+	private Map<String, Object> wrapCollection(Object param) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (param == null) {
 
@@ -151,15 +219,15 @@ public class SqlSession {
 		return resultMap;
 	}
 
-	public <T> List<T> selectList(String sqlID) throws Exception {
+	public <T> List<T> selectList(String sqlID) {
 		return selectList(sqlID, null);
 	}
 
-	public <T> T selectOne(String sqlID) throws Exception {
+	public <T> T selectOne(String sqlID) {
 		return selectOne(sqlID, null);
 	}
 
-	public <T> T selectOne(String sqlID, Object param) throws Exception {
+	public <T> T selectOne(String sqlID, Object param) {
 		List<T> list = this.selectList(sqlID, param);
 		if (list.size() == 1) {
 			return list.get(0);
@@ -192,8 +260,8 @@ public class SqlSession {
 				throw new MyDBExeceptions("no sqlid " + sqlID + " in sql");
 
 			String type = mapStatement.getType().trim();
-			if (!(type.equals("insert")
-					|| type.equals("update") || type.equals("delete"))) {
+			if (!(type.equals("insert") || type.equals("update") || type
+					.equals("delete"))) {
 				throw new MyDBExeceptions("sqlid " + sqlID
 						+ " not insert/update/detele");
 			}
@@ -254,8 +322,8 @@ public class SqlSession {
 				throw new MyDBExeceptions("no sqlid " + sqlID + " in sql");
 
 			String type = mapStatement.getType().trim();
-			if (!(type.equals("insert")
-					|| type.equals("update") || type.equals("delete"))) {
+			if (!(type.equals("insert") || type.equals("update") || type
+					.equals("delete"))) {
 				throw new MyDBExeceptions("sqlid " + sqlID
 						+ " not insert/update/detele");
 			}
@@ -265,11 +333,10 @@ public class SqlSession {
 				return 0;
 			}
 
-			PreparedStatement prepareStatement=null;
+			PreparedStatement prepareStatement = null;
 			try {
 				String sql = mapStatement.getSql();
-				 prepareStatement = connection
-						.prepareStatement(sql);
+				prepareStatement = connection.prepareStatement(sql);
 				connection.setAutoCommit(false); // 开始事务
 
 				for (int i = 0; i < size; i++) {
@@ -309,13 +376,12 @@ public class SqlSession {
 				return 0;
 			}
 
-			PreparedStatement prepareStatement=null;
+			PreparedStatement prepareStatement = null;
 			try {
-				
-				 prepareStatement = connection
-						.prepareStatement("");
+
+				prepareStatement = connection.prepareStatement("");
 				connection.setAutoCommit(false); // 开始事务
-				
+
 				for (int i = 0; i < size; i++) {
 					T t = list.get(i);
 					String sql = SqlKit.buildDeleteSql(t);
@@ -343,8 +409,6 @@ public class SqlSession {
 		return count;
 	}
 
-	
-	
 	// 开启事务
 	public void start() throws SQLException {
 		connection.setAutoCommit(false);

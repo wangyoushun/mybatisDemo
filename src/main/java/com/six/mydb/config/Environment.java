@@ -1,4 +1,4 @@
-package com.six.mydb;
+package com.six.mydb.config;
 
 public class Environment {
 	private String id;

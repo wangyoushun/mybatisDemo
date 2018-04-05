@@ -1,5 +1,6 @@
 package com.six.mydb;
 
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,20 +11,37 @@ import org.junit.Test;
 
 import com.six.mydb.entity.User;
 import com.six.mydb.exceptions.MyDBExeceptions;
+import com.six.mydb.parser.Resources;
+import com.six.mydb.session.SqlSessionFactory;
+import com.six.mydb.session.SqlSessionImpl;
+import com.six.mydb.utils.LogKit;
 
 public class Main {
 
 	private static String configPath;
 
 	public static void main(String[] args) throws Exception {
-//		insertBatchTest();
-		deleteBatchByIds();
+		String path4 = ClassLoader.getSystemClassLoader().getResource("mydb-config.xml").toString();
+		System.out.println(path4);
+		
+		selectPage(1);
+	}
+
+	private static void selectPage(int a) throws Exception {
+		List<User> list = druidAndResultTypeTest();
+		SqlSessionImpl session = getSession();
+		Page page = new Page();
+		page.setPage(a);
+		List<User> rs = session.selectListPage("queryForUser", null, page);
+		for (User user : rs) {
+			System.out.println(user);
+		}
 	}
 
 	// 测试根据主键批量删除
 	private static void deleteBatchByIds() throws Exception {
 		List<User> list = druidAndResultTypeTest();
-		SqlSession session = getSession();
+		SqlSessionImpl session = getSession();
 		int deleteBatchByIds = session.deleteBatchByIds(list, 40);
 		System.out.println(deleteBatchByIds);
 	}
@@ -31,7 +49,7 @@ public class Main {
 	// 测试循环插入的效率
 	private static void insertFor() {
 		long start = System.currentTimeMillis();
-		SqlSession session = getSession();
+		SqlSessionImpl session = getSession();
 		for (int i = 0; i < 1000; i++) {
 			User user = new User();
 			user.setName("aabbcc" + i);
@@ -47,7 +65,7 @@ public class Main {
 	// 批量插入
 	private static void insertBatchTest() {
 		long start = System.currentTimeMillis();
-		SqlSession session = getSessionByDruid();
+		SqlSessionImpl session = getSessionByDruid();
 		ArrayList<User> list = new ArrayList<User>();
 		for (int i = 0; i < 1000; i++) {
 			User user = new User();
@@ -64,7 +82,7 @@ public class Main {
 	}
 
 	private static List<User> druidAndResultTypeTest() throws Exception {
-		SqlSession session = getSessionByDruid();
+		SqlSessionImpl session = getSessionByDruid();
 		List<User> selectList = session.selectList("queryForUser");
 		for (User user : selectList) {
 			System.out.println(user);
@@ -74,7 +92,7 @@ public class Main {
 
 	private static void deleteObjTest() {
 		// 面向对象 删除
-		SqlSession session = getSession();
+		SqlSessionImpl session = getSession();
 		User user = new User();
 		user.setId(2325);
 
@@ -84,7 +102,7 @@ public class Main {
 
 	// 面向对象 更新
 	private static void updateObjTest() {
-		SqlSession session = getSession();
+		SqlSessionImpl session = getSession();
 		User user = new User();
 		user.setAddress("234");
 		user.setName("zhang");
@@ -96,7 +114,7 @@ public class Main {
 
 	// 面向对象 插入
 	private static void insertObj() {
-		SqlSession session = getSession();
+		SqlSessionImpl session = getSession();
 		User user = new User();
 		user.setAddress("abc");
 		user.setName("王");
@@ -107,7 +125,7 @@ public class Main {
 
 	// 测试传入 单个参数 (基本类型+string)
 	private static void deleteByIDTest() {
-		SqlSession session = getSession();
+		SqlSessionImpl session = getSession();
 		int id = 12;
 		int delete = session.delete("deleteUserByID", id);
 		System.out.println(delete);
@@ -115,7 +133,7 @@ public class Main {
 
 	// 测试事物和回滚
 	private static void transactionTest() {
-		SqlSession session = getSession();
+		SqlSessionImpl session = getSession();
 		try {
 			session.start();
 			for (int i = 0; i < 10; i++) {
@@ -133,7 +151,7 @@ public class Main {
 	}
 
 	private static void selectByForTest() throws Exception {
-		SqlSession session = getSession();
+		SqlSessionImpl session = getSession();
 
 		HashMap<String, Object> hashMap = new HashMap<String, Object>();
 		ArrayList<Integer> idList = new ArrayList<Integer>();
@@ -146,8 +164,8 @@ public class Main {
 		System.out.println(selectList);
 	}
 
-	private static SqlSession getSession() {
-		SqlSession session = null;
+	private static SqlSessionImpl getSession() {
+		SqlSessionImpl session = null;
 		try {
 			configPath = "mydb-config.xml";
 			session = new SqlSessionFactory(configPath).opsession();
@@ -157,8 +175,8 @@ public class Main {
 		return session;
 	}
 
-	private static SqlSession getSessionByDruid() {
-		SqlSession session = null;
+	private static SqlSessionImpl getSessionByDruid() {
+		SqlSessionImpl session = null;
 		try {
 			configPath = "mydb-config.xml";
 			session = new SqlSessionFactory(configPath, "druid").opsession();
@@ -171,7 +189,7 @@ public class Main {
 	// sql 待参数更新测试
 	private static void updateUserByParamTest() throws Exception {
 		String configPath = "mydb-config.xml";
-		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		SqlSessionImpl session = new SqlSessionFactory(configPath).opsession();
 		HashMap<String, Object> hashMap = new HashMap<String, Object>();
 		hashMap.put("id", 6);
 		hashMap.put("age", 13);
@@ -184,7 +202,7 @@ public class Main {
 	// sql 带参数插入测试
 	private static void insertUserByParamTest() throws Exception {
 		String configPath = "mydb-config.xml";
-		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		SqlSessionImpl session = new SqlSessionFactory(configPath).opsession();
 		HashMap<String, Object> hashMap = new HashMap<String, Object>();
 		hashMap.put("name", "cc");
 		hashMap.put("age", 13);
@@ -197,7 +215,7 @@ public class Main {
 	// sql 插入测试
 	private static void insertTest() throws Exception {
 		String configPath = "mydb-config.xml";
-		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		SqlSessionImpl session = new SqlSessionFactory(configPath).opsession();
 		int insert = session.insert("insertUser");
 		System.out.println("insert--" + insert);
 	}
@@ -205,7 +223,7 @@ public class Main {
 	// sql 测试查询
 	private static void testSelect() throws Exception {
 		String configPath = "mydb-config.xml";
-		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		SqlSessionImpl session = new SqlSessionFactory(configPath).opsession();
 		HashMap<String, Object> hashMap = new HashMap<>();
 		hashMap.put("name", "aaa");
 		hashMap.put("type", 4);
@@ -216,7 +234,7 @@ public class Main {
 	@Test
 	public void testParamList() throws Exception {
 		String configPath = "mydb-config.xml";
-		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		SqlSessionImpl session = new SqlSessionFactory(configPath).opsession();
 		System.out.println("=");
 		List<String> arrayList = new ArrayList<>();
 		arrayList.add("aaa");
@@ -227,7 +245,7 @@ public class Main {
 
 	private static void test04() throws Exception, SQLException {
 		String configPath = "mydb-config.xml";
-		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		SqlSessionImpl session = new SqlSessionFactory(configPath).opsession();
 		List<Object> selectList = session.selectList(
 				"com.six.domain.User.selectResultObj", null);
 		System.out.println(selectList);
@@ -236,7 +254,7 @@ public class Main {
 
 	private static void test03() throws Exception, SQLException {
 		String configPath = "mydb-config.xml";
-		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		SqlSessionImpl session = new SqlSessionFactory(configPath).opsession();
 		List<Object> selectList = session.selectList(
 				"com.six.domain.User.selectByNoparam", null);
 		System.out.println(selectList);
@@ -245,7 +263,7 @@ public class Main {
 
 	private static void test02() throws Exception, SQLException {
 		String configPath = "mydb-config.xml";
-		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		SqlSessionImpl session = new SqlSessionFactory(configPath).opsession();
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("id", 2308);
 		map.put("name", "叶小民1");
@@ -256,7 +274,7 @@ public class Main {
 
 	private static void test011() throws Exception, SQLException {
 		String configPath = "mydb-config.xml";
-		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		SqlSessionImpl session = new SqlSessionFactory(configPath).opsession();
 		Integer id = 2308;
 		// List<Object> selectList = session.selectList("selectAllUser", id);
 		User user = new User();
@@ -270,7 +288,7 @@ public class Main {
 	@Test
 	public void test01() throws Exception {
 		String configPath = "mydb-config.xml";
-		SqlSession session = new SqlSessionFactory(configPath).opsession();
+		SqlSessionImpl session = new SqlSessionFactory(configPath).opsession();
 		System.out.println("=");
 		// List<Object> selectList = session.selectList("select * from user",
 		// null);
