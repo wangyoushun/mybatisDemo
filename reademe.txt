@@ -12,14 +12,14 @@ XX threadlocal+ session
 -- 分页支持
 
 -- 重构sqlsession
-sql日志
-缓存   
-
+-- sql日志
+-- Mapper支持
 
 重构代码 测试代码
-Mapper支持
-
 spring整合
+
+缓存   
+
 
 
 
