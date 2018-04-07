@@ -1,5 +1,6 @@
 package com.six.mydb.session;
 
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,6 +16,7 @@ import com.six.mydb.config.Config;
 import com.six.mydb.config.SqlConfig;
 import com.six.mydb.config.TypeConstants;
 import com.six.mydb.exceptions.MyDBExeceptions;
+import com.six.mydb.mapper.MapperProxy;
 import com.six.mydb.utils.BeanKit;
 import com.six.mydb.utils.DBresultKit;
 import com.six.mydb.utils.FreeMarkerKit;
@@ -35,7 +37,8 @@ public class SqlSessionImpl implements SqlSession {
 	// select
 	@SuppressWarnings("unchecked")
 	public <T> List<T> selectList(String sqlID, Object param) {
-		LogKit.debug("selectList sqlid " + sqlID);
+		LogKit.debug("select sqlid " + sqlID);
+		long startTime = System.currentTimeMillis();
 
 		SqlConfig mapStatement = config.getSqlMap().get(sqlID);
 		checkSqlIdForQuery(sqlID, mapStatement);
@@ -62,16 +65,20 @@ public class SqlSessionImpl implements SqlSession {
 			close(prepareStatement, rs);
 		}
 
+		long endTime = System.currentTimeMillis();
+		LogKit.debug("sql " + sqlID + " " + sql + "  time: "
+				+ (endTime - startTime) + " ms");
 		return resultList;
 	}
 
 	// selectPage
 	@SuppressWarnings("unchecked")
 	public <T> List<T> selectListPage(String sqlID, Object param, Page page) {
+		LogKit.debug("selectList selectListPage " + sqlID);
+		long startTime = System.currentTimeMillis();
 
 		SqlConfig mapStatement = config.getSqlMap().get(sqlID);
 		checkSqlIdForQuery(sqlID, mapStatement);
-
 		// 组装sql
 		String sql = getSql(sqlID, param, mapStatement);
 		String countSql = builderCountSql(sql);
@@ -99,6 +106,10 @@ public class SqlSessionImpl implements SqlSession {
 		} finally {
 			close(prepareStatement, rs);
 		}
+
+		long endTime = System.currentTimeMillis();
+		LogKit.debug("sql " + sqlID + " " + sql + "  time: "
+				+ (endTime - startTime) + " ms");
 		return resultList;
 	}
 
@@ -253,6 +264,10 @@ public class SqlSessionImpl implements SqlSession {
 	}
 
 	public int update(String sqlID, Object param) {
+		LogKit.debug("sql update  " + sqlID);
+		long startTime = System.currentTimeMillis();
+
+		String sql = "";
 		int executeUpdate = 0;
 		try {
 			SqlConfig mapStatement = config.getSqlMap().get(sqlID);
@@ -267,7 +282,7 @@ public class SqlSessionImpl implements SqlSession {
 			}
 
 			// 组装sql
-			String sql = getSql(sqlID, param, mapStatement);
+			sql = getSql(sqlID, param, mapStatement);
 			PreparedStatement prepareStatement = null;
 			try {
 				prepareStatement = connection.prepareStatement(sql);
@@ -279,6 +294,10 @@ public class SqlSessionImpl implements SqlSession {
 		} catch (Exception e) {
 			throw new MyDBExeceptions(e);
 		}
+
+		long endTime = System.currentTimeMillis();
+		LogKit.debug("sql " + sqlID + " " + sql + "  time: "
+				+ (endTime - startTime) + " ms");
 		return executeUpdate;
 	}
 
@@ -407,6 +426,13 @@ public class SqlSessionImpl implements SqlSession {
 			throw new MyDBExeceptions(e);
 		}
 		return count;
+	}
+
+	public <T> Object getMapper(Class<T> clazz) {
+		MapperProxy<T> mapperProxy = new MapperProxy<T>(this, config, clazz);
+		Class<?>[] interfaces = new Class[] { clazz };
+		return Proxy.newProxyInstance(clazz.getClassLoader(), interfaces,
+				mapperProxy);
 	}
 
 	// 开启事务

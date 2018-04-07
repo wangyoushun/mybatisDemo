@@ -6,6 +6,7 @@
 	</properties>
 	<settings>
 		<setting name="mapUnderscoreToCamelCase" value="true" />
+		<setting name="logTime" value="true" />
 	</settings>
 
 	<environments>
@@ -22,5 +23,6 @@
 
 	<mappers>
 		<mapper resource="sql/User.sql" />
+		<mapper resource="com/six/mydb/mapper/MapperProxy.sql" />
 	</mappers>
 </configuration>

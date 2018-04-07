@@ -1,29 +1,46 @@
 package com.six.mydb;
 
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import com.six.mydb.entity.User;
 import com.six.mydb.exceptions.MyDBExeceptions;
-import com.six.mydb.parser.Resources;
+import com.six.mydb.mapper.UserMapper;
 import com.six.mydb.session.SqlSessionFactory;
 import com.six.mydb.session.SqlSessionImpl;
 import com.six.mydb.utils.LogKit;
 
 public class Main {
 
+	private static Logger logger = Logger.getLogger(Main.class);
+
 	private static String configPath;
 
 	public static void main(String[] args) throws Exception {
-		String path4 = ClassLoader.getSystemClassLoader().getResource("mydb-config.xml").toString();
+		selectMapperTest();
+
+	}
+
+	private static void selectMapperTest() {
+		SqlSessionImpl session = getSession();
+		UserMapper usermaper = (UserMapper) session.getMapper(UserMapper.class);
+		List<User> queryForUser = usermaper.queryForUser();
+		for (User user : queryForUser) {
+			System.out.println(user);
+		}
+	}
+
+	private static void logTest() throws Exception {
+		String path4 = ClassLoader.getSystemClassLoader()
+				.getResource("mydb-config.xml").toString();
 		System.out.println(path4);
-		
+		LogKit.debug("sdfsdf");
 		selectPage(1);
 	}
 
